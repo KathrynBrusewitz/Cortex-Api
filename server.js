@@ -28,14 +28,12 @@ app.use(morgan("dev"));
 // =======================
 // routes ================
 // =======================
-// basic route
+
+// basic homepage route
 app.get("/", function(req, res) {
-  res.send("Hello! The API is at http://localhost:" + port + "/api");
+  res.send("Hello! The Cortex API is at http://localhost:" + port + "/api");
 });
 
-// API ROUTES -------------------
-
-// get an instance of the router for api routes
 var apiRoutes = express.Router();
 
 // route to authenticate a user (POST http://localhost:8080/api/authenticate)
@@ -43,7 +41,7 @@ apiRoutes.post("/authenticate", function(req, res) {
   // find the user
   User.findOne(
     {
-      name: req.body.name
+      email: req.body.email
     },
     function(err, user) {
       if (err) throw err;
@@ -60,15 +58,21 @@ apiRoutes.post("/authenticate", function(req, res) {
             success: false,
             message: "Authentication failed. Wrong password."
           });
+        } else if (!user.enabled) {
+          res.json({
+            success: false,
+            message:
+              "Authentication failed. User is not enabled. Please contact an admin."
+          });
         } else {
-          // if user is found and password is right
+          // if user is found and password is right and is enabled
           // create a token with only our given payload
           // we don't want to pass in the entire user since that has the password
           const payload = {
             admin: user.admin
           };
           var token = jwt.sign(payload, app.get("superSecret"), {
-            expiresInMinutes: 1440 // expires in 24 hours
+            expiresIn: 86400 // expires in 24 hours
           });
 
           // return the information including token as JSON
@@ -82,6 +86,53 @@ apiRoutes.post("/authenticate", function(req, res) {
     }
   );
 });
+
+// route middleware to verify a token
+apiRoutes.use(function(req, res, next) {
+  // check header or url parameters or post parameters for token
+  var token =
+    req.body.token || req.query.token || req.headers["x-access-token"];
+
+  // decode token
+  if (token) {
+    // verifies secret and checks exp
+    jwt.verify(token, app.get("superSecret"), function(err, decoded) {
+      if (err) {
+        return res.json({
+          success: false,
+          message: "Failed to authenticate token."
+        });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        next();
+      }
+    });
+  } else {
+    // if there is no token
+    // return an error
+    return res.status(403).send({
+      success: false,
+      message: "No token provided."
+    });
+  }
+});
+
+// show a message at (GET http://localhost:8080/api/)
+apiRoutes.get("/", function(req, res) {
+  res.json({ message: "Welcome to Cortex API!" });
+});
+
+// db.getCollection('users').find({})
+// route to return all users (GET http://localhost:8080/api/users)
+apiRoutes.get("/users", function(req, res) {
+  User.find({}, function(err, users) {
+    res.json(users);
+  });
+});
+
+// apply the routes to our application with the prefix /api
+app.use("/api", apiRoutes);
 
 // =======================
 // start the server ======

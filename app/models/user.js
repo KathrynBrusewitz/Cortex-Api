@@ -9,6 +9,7 @@ module.exports = mongoose.model(
     name: String,
     email: String,
     password: String,
-    admin: Boolean
+    admin: { type: Boolean, default: false },
+    enabled: { type: Boolean, default: true }
   })
 );

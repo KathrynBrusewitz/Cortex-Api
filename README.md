@@ -1,6 +1,6 @@
 # Cortex API
 
-API for Cortex Admin Portal and Grey Matters App
+API for Cortex Admin Portal and Grey Matters App.
 
 ## Setup
 
@@ -25,6 +25,7 @@ To make working with the database easier, download [Robo 3T](https://robomongo.o
 In Robo 3T, set the address to `localhost` and the port to `27017`. Name the connection anything you want.
 
 ### Config File
+
 Create config file. Call it `config.js`. Inside, write:
 
 ```
@@ -33,3 +34,7 @@ module.exports = {
   database: "mongodb://127.0.0.1:27017/cortex-dev"
 };
 ```
+
+## Run Server
+
+Use nodemon to have the server restart on file changes. Install by running `npm install -g nodemon`. Then start up the Node server by running `npm start`.
