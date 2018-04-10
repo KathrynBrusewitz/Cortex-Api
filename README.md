@@ -1,6 +1,10 @@
-# Cortex API
+<h1 align="center">
+  Cortex API
+</h1>
 
-API for Cortex Admin Portal and Grey Matters App.
+API for Cortex Admin CMS for Grey Matters App and other science content/experience creators.
+
+Below should give you enough instructions to get started.
 
 ## Setup
 
@@ -30,7 +34,7 @@ Create config file. Call it `config.js`. Inside, write:
 
 ```
 module.exports = {
-  secret: "/** ask Kathryn for the secret ;) **/",
+  secret: "banana",
   database: "mongodb://127.0.0.1:27017/cortex-dev"
 };
 ```
