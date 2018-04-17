@@ -12,6 +12,13 @@ var jwt = require("jsonwebtoken");
 // Mongoose Models
 // =======================
 var User = require("./app/models/user");
+var Content = require("./app/models/content");
+var Article = require("./app/models/article");
+var Podcast = require("./app/models/podcast");
+var Video = require("./app/models/video");
+var Term = require("./app/models/term");
+var Event = require("./app/models/event");
+
 
 // =======================
 // Configuration

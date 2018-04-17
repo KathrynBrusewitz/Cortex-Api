@@ -6,37 +6,80 @@ API for Cortex Admin CMS for Grey Matters App and other science content/experien
 
 Below should give you enough instructions to get started.
 
-## Todo
+## Notes
+
+Controller receives req and res, builds query, sends to Resource, returns Resource response
+Resource receives query, returns reject(error) or resolve(object)
 
 ```
-[ ] Move routes into own file
+// Query Example
 
-getUsers([userId])
-  Find all in /users all users that match id, return [user objects]
+import User from '../models/user';
+router.get('/users', function(req, res) {
+  User.find({}, function(err, data) {
+    if (err) console.log(err)
+    res.json(data);
+  });
+});
+router.get('/users/:id', function(req, res) {
+  User.findById({ _id: req.params.id }, function(err, data) {
+    if (err) console.log(err)
+    res.json(data);
+  });
+});
 
-getUser({ _id })
-  GET /api/users/{id}
-  Find in /users user that match id, return {user object}
+import Content from '../models/content';
+router.get('/content', function(req, res) {
+  // check token for app or dash access
+  // query = app ? { state:'published' } : {}
+  Content.find({}, function(err, data) {
+    if (err) console.log(err)
+    res.json(data);
+  });
+});
+router.get('/content?type=article', function(req, res) {
+  // check token for app or dash access
+  // query = app ? { ...req.params, state:'published' } : { ...req.params }
+  Content.find(query, function(err, data) {
+    if (err) console.log(err)
+    res.json(data);
+  });
+});
 
-getArticles(userId)
-  Find all in /articles, writer in writers that match id
+// Routes Example
+
+GET /api/content                                  get all content (note: app must only receive ?state=published)
+  GET /api/content?type=article                   get all articles
+  GET /api/content?type=podcast                   get all podcasts
+  GET /api/content?type=video                     get all videos
+  GET /api/content?type=article&state=published   get all published articles
+GET /api/content/:id                              get content with id
+
+GET /api/events
+GET /api/events/:id
+
+GET /api/terms
+GET /api/terms/:id
+
+GET /api/users
+GET /api/users/:id
+GET /api/users/:id/bookmarks                      get all bookmarks for a user
+GET /api/users/:id/bookmarks?type=video           get all video bookmarks for a user
+
+Same pattern across routes:
+POST /api/{object}/
+PUT /api/{object}/:id
+DELETE /api/{object}/:id
+
+// Other
 
 getBookmarks(userId)
-  Use cases:
-  - a user wants to see all their bookmarks
-    GET /api/users/{id}/bookmarks
-  - a user wants to see all their bookmarked articles
-    GET /api/users/{id}/bookmarks?type=article
-  - a user wants to see all their bookmarked podcasts
-    GET /api/users/{id}/bookmarks?type=podcast
-  - a user wants to see all their bookmarked videos
-    GET /api/users/{id}/bookmarks?type=video
 
 getBookmarks(contentId)
-  Find all content in /content that match
+  Find all in /content that match
 
 countBookmarks(contentId)
-  call getBookmarks(contentId), return length
+  Call getBookmarks(contentId), return length
 ```
 
 ## Dev Setup
