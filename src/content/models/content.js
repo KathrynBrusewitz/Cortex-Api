@@ -23,3 +23,4 @@ module.exports = mongoose.model(
 // Future properties:
 // media id/key/ref - for podcasts and videos to pull from another DB
 // category or categories - for sorting and searching
+// comments - using embedded documents
