@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/kathrynbrusewitz/cortex-api.git"
   },
-  "main": "server.js",
+  "main": "./src/server.js",
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
