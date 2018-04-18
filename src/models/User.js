@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 let Schema = mongoose.Schema;
+let ObjectId = Schema.ObjectId;
 
 module.exports = mongoose.model(
   'User',
