@@ -43,11 +43,8 @@ var apiRoutes = express.Router();
 
 // Route: Authenticate user and get token (POST http://localhost:8080/api/authenticate)
 apiRoutes.post("/authenticate", function(req, res) {
-  // TODO: REMOVE NEXT LINE
-  /// Check if req contains the entry type (either app or dash)
-  console.log(req);
+  const entryPoint = req.body.entry || null; // expect 'dash' or 'app'
 
-  // Find user
   User.findOne({ email: req.body.email },
     function(err, user) {
       if (err) throw err;
@@ -66,23 +63,31 @@ apiRoutes.post("/authenticate", function(req, res) {
             message: "Authentication failed. Incorrect credentials."
           });
         } else {
-          // Create a token with only our given payload
-          // Don't pass in the entire user, that has the password
-          const payload = {
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          };
-          var token = jwt.sign(payload, app.get("superSecret"), {
-            expiresIn: 86400 // Expires in 24 hours
-          });
-          // Return the information including token as JSON
-          res.json({
-            success: true,
-            message: `Enjoy your ${user.role} token!`,
-            token: token,
-            ...payload,
-          });
+          if (entryPoint === 'dash' && user.role !== 'admin') {
+            // Only admins can enter dash
+            res.json({
+              success: false,
+              message: "Authentication failed. Incorrect credentials."
+            });
+          } else {
+            // Create a token with only our given payload
+            // Don't pass in the entire user, that has the password
+            const payload = {
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            };
+            var token = jwt.sign(payload, app.get("superSecret"), {
+              expiresIn: 86400 // Expires in 24 hours
+            });
+            // Return the information including token as JSON
+            res.json({
+              success: true,
+              message: `Enjoy your ${user.role} token!`,
+              token: token,
+              ...payload,
+            });
+          }
         }
       }
     }
