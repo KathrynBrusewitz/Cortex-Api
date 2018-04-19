@@ -8,12 +8,18 @@ Below should give you enough instructions to get started.
 
 ## Todo
 
-[ ] req should contain the entry type (either app or dash)
-[ ] pass to payload for token?
+Save token of user in a local cookie to be used to keep session alive when refreshing page
+```
+import cookie from 'react-cookie';
+setUser(res) {
+  cookie.save('token', res.user.token, { path: '/' });
+}
+```
 
 ## Notes
 
 Controller receives req and res, builds query, sends to Resource, returns Resource response
+
 Resource receives query, returns reject(error) or resolve(object)
 
 ```
