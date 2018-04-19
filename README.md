@@ -6,6 +6,11 @@ API for Cortex Admin CMS for Grey Matters App and other science content/experien
 
 Below should give you enough instructions to get started.
 
+## Todo
+
+[ ] req should contain the entry type (either app or dash)
+[ ] pass to payload for token?
+
 ## Notes
 
 Controller receives req and res, builds query, sends to Resource, returns Resource response

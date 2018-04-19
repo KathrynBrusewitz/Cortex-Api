@@ -3,6 +3,7 @@
 // =======================
 var express = require("express");
 var app = express();
+var cors = require('cors');
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var mongoose = require("mongoose");
@@ -26,6 +27,8 @@ app.set("superSecret", config.secret);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
+app.use(cors());
+app.options('*', cors()); // Enable CORS pre-flight across all routes
 
 // =======================
 // Routes
@@ -40,6 +43,10 @@ var apiRoutes = express.Router();
 
 // Route: Authenticate user and get token (POST http://localhost:8080/api/authenticate)
 apiRoutes.post("/authenticate", function(req, res) {
+  // TODO: REMOVE NEXT LINE
+  /// Check if req contains the entry type (either app or dash)
+  console.log(req);
+
   // Find user
   User.findOne({ email: req.body.email },
     function(err, user) {
@@ -73,7 +80,8 @@ apiRoutes.post("/authenticate", function(req, res) {
           res.json({
             success: true,
             message: `Enjoy your ${user.role} token!`,
-            token: token
+            token: token,
+            ...payload,
           });
         }
       }
