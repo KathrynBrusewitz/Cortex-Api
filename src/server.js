@@ -41,7 +41,7 @@ app.get("/", function(req, res) {
 
 var apiRoutes = express.Router();
 
-// Route: Authenticate user and get token (POST http://localhost:8080/api/authenticate)
+// Route: Authenticate user and get token
 apiRoutes.post("/authenticate", function(req, res) {
   const entryPoint = req.body.entry || null; // expect 'dash' or 'app'
 
@@ -123,16 +123,25 @@ apiRoutes.use(function(req, res, next) {
   }
 });
 
-// Show a message at (GET http://localhost:8080/api/)
+// Show a message
 apiRoutes.get("/", function(req, res) {
   res.json({ message: "Welcome to Cortex API!" });
 });
 
-// db.getCollection('users').find({})
-// Route: Get all users (GET http://localhost:8080/api/users)
+// Route: Get all users
 apiRoutes.get("/users", function(req, res) {
-  User.find({}, function(err, users) {
+  // req.params or req.query ????
+  const query = req.params || {};
+  User.find(query, function(err, users) {
+    if (err) console.log(err);
     res.json(users);
+  });
+});
+
+apiRoutes.get("/users/:id", function(req, res) {
+  User.findById({ _id: req.params.id }, function(err, data) {
+    if (err) console.log(err);
+    res.json(data);
   });
 });
 

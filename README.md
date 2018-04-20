@@ -8,13 +8,44 @@ Below should give you enough instructions to get started.
 
 ## Todo
 
-Save token of user in a local cookie to be used to keep session alive when refreshing page
+### Cookies
+
+Save token of user in a local cookie to be used to keep session alive when refreshing page. Client already is saving cookie for token, but needs to dispatch action to server to verify token. If token is verified, send back user.
+
+Server
 ```
-import cookie from 'react-cookie';
-setUser(res) {
-  cookie.save('token', res.user.token, { path: '/' });
+apiRoutes.post('/token/:token', AuthController.loginWithToken);
+
+static loginWithToken(req, res) {
+  const token = req.params.token;
+
+  jwt.verify(token, SECRET, (err, decoded) => {
+    if (err || !decoded || !decoded.id) {
+      return res.status(403).send({
+        success: false,
+        message: 'Failed to authenticate token.',
+      });
+    }
+
+    // get the user and return it
+    UserController.loadUser(decoded.id)
+    .then((user) => {
+      const returnUser = user;
+      returnUser.token = token;
+
+      res.status(200).json({
+        success: true,
+        user: returnUser,
+      });
+    })
+    .catch((err2) => {
+      res.send(err2);
+    });
+  });
 }
 ```
+
+For Client, try https://stackoverflow.com/questions/34624257/react-router-redux-how-can-i-update-state-on-load-of-page-for-authentication
 
 ## Notes
 
