@@ -31,19 +31,19 @@ app.use(cors());
 app.options('*', cors()); // Enable CORS pre-flight across all routes
 
 // =======================
-// Routes
+// Unprotected Routes
 // =======================
 
-// Basic route: homepage
+// Homepage
 app.get("/", function(req, res) {
   res.send("Hello! The Cortex API is at http://localhost:" + port + "/api");
 });
 
 var apiRoutes = express.Router();
 
-// Route: Authenticate user and get token
+// Authenticate user and get token
 apiRoutes.post("/authenticate", function(req, res) {
-  const entryPoint = req.body.entry || null; // expect 'dash' or 'app'
+  const entry = req.body.entry || null; // expect 'dash' or 'app'
 
   User.findOne({ email: req.body.email },
     function(err, user) {
@@ -51,21 +51,21 @@ apiRoutes.post("/authenticate", function(req, res) {
 
       if (!user) {
         // Email not found
-        res.json({
+        res.status(404).send({
           success: false,
           message: "Authentication failed. Incorrect credentials."
         });
       } else if (user) {
         // Password mismatch
         if (user.password != req.body.password) {
-          res.json({
+          res.status(404).send({
             success: false,
             message: "Authentication failed. Incorrect credentials."
           });
         } else {
-          if (entryPoint === 'dash' && user.role !== 'admin') {
+          if (entry === 'dash' && user.role !== 'admin') {
             // Only admins can enter dash
-            res.json({
+            res.status(403).send({
               success: false,
               message: "Authentication failed. You are not an admin."
             });
@@ -76,6 +76,7 @@ apiRoutes.post("/authenticate", function(req, res) {
               name: user.name,
               email: user.email,
               role: user.role,
+              entry: user.entry,
             };
             var token = jwt.sign(payload, app.get("superSecret"), {
               expiresIn: 86400 // Expires in 24 hours
@@ -94,17 +95,19 @@ apiRoutes.post("/authenticate", function(req, res) {
   );
 });
 
-// Route middleware to verify a token
+// Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
   // Check for token in header or url parameters or post parameters
   var token = req.body.token || req.query.token || req.headers["x-access-token"];
+
+  console.log('route.use reached');
 
   // Decode token
   if (token) {
     // Verifies secret and checks expiration
     jwt.verify(token, app.get("superSecret"), function(err, decoded) {
       if (err) {
-        return res.json({
+        res.json({
           success: false,
           message: "Failed to authenticate token."
         });
@@ -116,34 +119,42 @@ apiRoutes.use(function(req, res, next) {
     });
   } else {
     // If there is no token, return an error
-    return res.status(403).send({
+    res.status(403).send({
       success: false,
       message: "No token provided."
     });
   }
 });
 
-// Show a message
+// =======================
+// Protected Routes
+// =======================
+
 apiRoutes.get("/", function(req, res) {
-  res.json({ message: "Welcome to Cortex API!" });
+  res.json({ message: "Token verified. Welcome to Cortex API!" });
 });
 
-// Route: Get all users
 apiRoutes.get("/users", function(req, res) {
   // req.params or req.query ????
   const query = req.params || {};
   User.find(query, function(err, users) {
-    if (err) console.log(err);
-    res.json(users);
+    if (err) {
+      res.status(500).send({
+        success: false,
+        message: "Server Error."
+      });
+    } else {
+      res.json(users);
+    }
   });
 });
 
-apiRoutes.get("/users/:id", function(req, res) {
-  User.findById({ _id: req.params.id }, function(err, data) {
-    if (err) console.log(err);
-    res.json(data);
-  });
-});
+// apiRoutes.get("/users/:id", function(req, res) {
+//   User.findById({ _id: req.params.id }, function(err, data) {
+//     if (err) console.log(err);
+//     res.json(data);
+//   });
+// });
 
 // Apply routes with the prefix /api
 app.use("/api", apiRoutes);
