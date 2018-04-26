@@ -67,7 +67,7 @@ apiRoutes.post("/authenticate", function(req, res) {
             // Only admins can enter dash
             res.json({
               success: false,
-              message: "Authentication failed. Incorrect credentials."
+              message: "Authentication failed. You are not an admin."
             });
           } else {
             // Create a token with only our given payload
