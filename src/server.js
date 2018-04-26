@@ -113,6 +113,7 @@ apiRoutes.use(function(req, res, next) {
         });
       } else {
         // If it's all good, save to request for use in other routes
+        req.token = token;
         req.decoded = decoded;
         next();
       }
@@ -134,14 +135,27 @@ apiRoutes.get("/", function(req, res) {
   res.json({ message: "Token verified. Welcome to Cortex API!" });
 });
 
+apiRoutes.get("/user", function(req, res) {
+  console.log(req);
+  User.findById({ _id: req.decoded.id }, function(err, user) {
+    if (err) {
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({...user, token: req.token });
+    }
+  });
+});
+
 apiRoutes.get("/users", function(req, res) {
-  // req.params or req.query ????
   const query = req.params || {};
   User.find(query, function(err, users) {
     if (err) {
       res.status(500).send({
         success: false,
-        message: "Server Error."
+        message: "Server error."
       });
     } else {
       res.json(users);
@@ -149,12 +163,12 @@ apiRoutes.get("/users", function(req, res) {
   });
 });
 
-// apiRoutes.get("/users/:id", function(req, res) {
-//   User.findById({ _id: req.params.id }, function(err, data) {
-//     if (err) console.log(err);
-//     res.json(data);
-//   });
-// });
+apiRoutes.get("/users/:id", function(req, res) {
+  User.findById({ _id: req.params.id }, function(err, data) {
+    if (err) console.log(err);
+    res.json(data);
+  });
+});
 
 // Apply routes with the prefix /api
 app.use("/api", apiRoutes);
