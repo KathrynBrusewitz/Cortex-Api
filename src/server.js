@@ -56,7 +56,6 @@ apiRoutes.post("/authenticate", function(req, res) {
           message: "Authentication failed. Incorrect credentials."
         });
       } else if (user) {
-        console.log(user);
         // Password mismatch
         if (user.password != req.body.password) {
           res.status(404).send({
