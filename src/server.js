@@ -56,6 +56,7 @@ apiRoutes.post("/authenticate", function(req, res) {
           message: "Authentication failed. Incorrect credentials."
         });
       } else if (user) {
+        console.log(user);
         // Password mismatch
         if (user.password != req.body.password) {
           res.status(404).send({
@@ -73,10 +74,11 @@ apiRoutes.post("/authenticate", function(req, res) {
             // Create a token with only our given payload
             // Don't pass in the entire user, that has the password
             const payload = {
+              _id: user._id,
               name: user.name,
               email: user.email,
               role: user.role,
-              entry: user.entry,
+              entry,
             };
             var token = jwt.sign(payload, app.get("superSecret"), {
               expiresIn: 86400 // Expires in 24 hours
@@ -85,7 +87,7 @@ apiRoutes.post("/authenticate", function(req, res) {
             res.json({
               success: true,
               message: `Enjoy your ${user.role} token!`,
-              token: token,
+              token,
               ...payload,
             });
           }
@@ -100,11 +102,8 @@ apiRoutes.use(function(req, res, next) {
   // Check for token in header or url parameters or post parameters
   var token = req.body.token || req.query.token || req.headers["x-access-token"];
 
-  console.log('route.use reached');
-
-  // Decode token
   if (token) {
-    // Verifies secret and checks expiration
+    // Verify secret and check expiration
     jwt.verify(token, app.get("superSecret"), function(err, decoded) {
       if (err) {
         res.json({
@@ -112,14 +111,13 @@ apiRoutes.use(function(req, res, next) {
           message: "Failed to authenticate token."
         });
       } else {
-        // If it's all good, save to request for use in other routes
+        // Make available to Protected Routes
         req.token = token;
         req.decoded = decoded;
         next();
       }
     });
   } else {
-    // If there is no token, return an error
     res.status(403).send({
       success: false,
       message: "No token provided."
@@ -136,16 +134,11 @@ apiRoutes.get("/", function(req, res) {
 });
 
 apiRoutes.get("/user", function(req, res) {
-  console.log(req);
-  User.findById({ _id: req.decoded.id }, function(err, user) {
-    if (err) {
-      res.status(500).send({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({...user, token: req.token });
-    }
+  res.json({
+    success: true,
+    message: `Enjoy your ${req.decoded.role} token!`,
+    token: req.token,
+    ...req.decoded,
   });
 });
 
