@@ -24,6 +24,8 @@ var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
 app.set("superSecret", config.secret);
+// `extended` determines which parsing library to use: qs or querystring
+// https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
@@ -156,9 +158,15 @@ apiRoutes.get("/users", function(req, res) {
 });
 
 apiRoutes.get("/users/:id", function(req, res) {
-  User.findById({ _id: req.params.id }, function(err, data) {
-    if (err) console.log(err);
-    res.json(data);
+  User.findById({ _id: req.params.id }, function(err, user) {
+    if (err) {
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json(user);
+    }
   });
 });
 
