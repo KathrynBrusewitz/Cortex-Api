@@ -6,51 +6,6 @@ API for Cortex Admin CMS for Grey Matters App and other science content/experien
 
 Below should give you enough instructions to get started.
 
-## Todo
-
-## Notes
-
-Controller receives req and res, builds query, sends to Resource, returns Resource response
-
-Resource receives query, returns reject(error) or resolve(object)
-
-```
-// Routes Example
-
-GET /api/content                                  get all content (note: app must only receive ?state=published)
-  GET /api/content?type=article                   get all articles
-  GET /api/content?type=podcast                   get all podcasts
-  GET /api/content?type=video                     get all videos
-  GET /api/content?type=article&state=published   get all published articles
-GET /api/content/:id                              get content with id
-
-GET /api/events
-GET /api/events/:id
-
-GET /api/terms
-GET /api/terms/:id
-
-GET /api/users
-GET /api/users/:id
-GET /api/users/:id/bookmarks                      get all bookmarks for a user
-GET /api/users/:id/bookmarks?type=video           get all video bookmarks for a user
-
-Same pattern across routes:
-POST /api/{object}/
-PUT /api/{object}/:id
-DELETE /api/{object}/:id
-
-// Other
-
-getBookmarks(userId)
-
-getBookmarks(contentId)
-  Find all in /content that match
-
-countBookmarks(contentId)
-  Call getBookmarks(contentId), return length
-```
-
 ## Dev Setup
 
 ### Dependencies
@@ -95,12 +50,48 @@ In Robo 3T, set the address to `localhost` and the port to `27017`. Name the con
 
 You can use [POSTman](https://www.getpostman.com/) to test routes through a GUI.
 
-## Misc
+## Developer Notes
 
-A quick explanation of the dependencies:
+<i>To be organized into docs at a later time.</i>
 
+A quick explanation of the dependencies:<br>
 `express` is the Node framework<br>
 `mongoose` is how we interact with our MongoDB database<br>
 `morgan` logs requests to the console<br>
 `body-parser` lets us get info from POST requests and URL parameters<br>
 `jsonwebtoken` is how we create, sign, and verify JSON Web Tokens<br>
+
+Route Examples
+```
+GET /api/content                                  get all content (note: app must only receive ?state=published)
+  GET /api/content?type=article                   get all articles
+  GET /api/content?type=podcast                   get all podcasts
+  GET /api/content?type=video                     get all videos
+  GET /api/content?type=article&state=published   get all published articles
+GET /api/content/:id                              get content with id
+
+GET /api/events
+GET /api/events/:id
+
+GET /api/terms
+GET /api/terms/:id
+
+GET /api/users
+GET /api/users/:id
+GET /api/users/:id/bookmarks                      get all bookmarks for a user
+GET /api/users/:id/bookmarks?type=video           get all video bookmarks for a user
+
+Same pattern across routes:
+POST /api/{object}/
+PUT /api/{object}/:id
+DELETE /api/{object}/:id
+
+// Controllers
+getBookmarks(userId)
+
+getBookmarks(contentId)
+  Find all in /content that match
+
+countBookmarks(contentId)
+  Call getBookmarks(contentId), return length
+```

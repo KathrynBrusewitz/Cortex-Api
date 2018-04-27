@@ -95,7 +95,7 @@ apiRoutes.post("/authenticate", function(req, res) {
         }
       }
     }
-  );
+  ).select("+password");
 });
 
 // Middleware to verify a token and protects routes below
