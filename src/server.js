@@ -49,7 +49,13 @@ apiRoutes.post("/authenticate", function(req, res) {
 
   User.findOne({ email: req.body.email },
     function(err, user) {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        res.json({
+          success: false,
+          message: "Server error."
+        });
+      }
 
       if (!user) {
         // Email not found
@@ -108,6 +114,7 @@ apiRoutes.post("/createUser", function(req, res) {
 
   newUser.save(function(err) {
     if (err) {
+      console.log(err);
       res.status(500).send({
         success: false,
         message: "Server error."
@@ -127,6 +134,7 @@ apiRoutes.use(function(req, res, next) {
     // Verify secret and check expiration
     jwt.verify(token, app.get("superSecret"), function(err, decoded) {
       if (err) {
+        console.log(err);
         res.json({
           success: false,
           message: "Failed to authenticate token."
@@ -167,6 +175,7 @@ apiRoutes.get("/users", function(req, res) {
   const query = req.params || {};
   User.find(query, function(err, users) {
     if (err) {
+      console.log(err);
       res.json({
         success: false,
         message: "Server error."
@@ -180,12 +189,51 @@ apiRoutes.get("/users", function(req, res) {
 apiRoutes.get("/users/:id", function(req, res) {
   User.findById({ _id: req.params.id }, function(err, user) {
     if (err) {
+      console.log(err);
       res.json({
         success: false,
         message: "Server error."
       });
     } else {
       res.json(user);
+    }
+  });
+});
+
+apiRoutes.get("/content", function(req, res) {
+  const query = req.query || {};
+  console.log(req.query);
+  // given url: '/content?type=article', req.query returns { type: 'article' }
+  Content.find({}, function(err, content) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        content,
+      });
+    }
+  });
+});
+
+apiRoutes.post("/content", function(req, res) {
+  const newContent = new Content({ 
+    ...req.body,
+  });
+
+  newContent.save(function(err) {
+    if (err) {
+      console.log(err);
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({ success: true });
     }
   });
 });
