@@ -24,7 +24,7 @@ var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
 app.set("superSecret", config.secret);
-// `extended` determines which parsing library to use: qs or querystring
+// `extended` determines which parsing library to use: true=qs, false=querystring
 // https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -172,8 +172,9 @@ apiRoutes.get("/user", function(req, res) {
 });
 
 apiRoutes.get("/users", function(req, res) {
-  const query = req.params || {};
-  User.find(query, function(err, users) {
+  const query = req.query || {};
+
+  User.find(query, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -181,7 +182,10 @@ apiRoutes.get("/users", function(req, res) {
         message: "Server error."
       });
     } else {
-      res.json(users);
+      res.json({
+        success: true,
+        payload: data,
+      });
     }
   });
 });
@@ -195,16 +199,18 @@ apiRoutes.get("/users/:id", function(req, res) {
         message: "Server error."
       });
     } else {
-      res.json(user);
+      res.json({
+        success: false,
+        payload: user,
+      });
     }
   });
 });
 
 apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
-  // given url: '/content?type=article', req.query returns { type: 'article' }
 
-  Content.find({}, function(err, data) {
+  Content.find(query, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
