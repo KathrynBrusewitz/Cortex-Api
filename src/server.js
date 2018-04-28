@@ -53,21 +53,21 @@ apiRoutes.post("/authenticate", function(req, res) {
 
       if (!user) {
         // Email not found
-        res.status(404).send({
+        res.json({
           success: false,
           message: "Authentication failed. Incorrect credentials."
         });
       } else if (user) {
         // Password mismatch
         if (user.password != req.body.password) {
-          res.status(404).send({
+          res.json({
             success: false,
             message: "Authentication failed. Incorrect credentials."
           });
         } else {
           if (entry === 'dash' && user.role !== 'admin') {
             // Only admins can enter dash
-            res.status(403).send({
+            res.json({
               success: false,
               message: "Authentication failed. You are not an admin."
             });
@@ -98,6 +98,26 @@ apiRoutes.post("/authenticate", function(req, res) {
   ).select("+password");
 });
 
+apiRoutes.post("/createUser", function(req, res) {
+  const newUser = new User({ 
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    role: req.body.role,
+  });
+
+  newUser.save(function(err) {
+    if (err) {
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
+
 // Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
   // Check for token in header or url parameters or post parameters
@@ -119,7 +139,7 @@ apiRoutes.use(function(req, res, next) {
       }
     });
   } else {
-    res.status(403).send({
+    res.json({
       success: false,
       message: "No token provided."
     });
@@ -147,7 +167,7 @@ apiRoutes.get("/users", function(req, res) {
   const query = req.params || {};
   User.find(query, function(err, users) {
     if (err) {
-      res.status(500).send({
+      res.json({
         success: false,
         message: "Server error."
       });
@@ -160,7 +180,7 @@ apiRoutes.get("/users", function(req, res) {
 apiRoutes.get("/users/:id", function(req, res) {
   User.findById({ _id: req.params.id }, function(err, user) {
     if (err) {
-      res.status(500).send({
+      res.json({
         success: false,
         message: "Server error."
       });
