@@ -200,11 +200,11 @@ apiRoutes.get("/users/:id", function(req, res) {
   });
 });
 
-apiRoutes.get("/content", function(req, res) {
+apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
-  console.log(req.query);
   // given url: '/content?type=article', req.query returns { type: 'article' }
-  Content.find({}, function(err, content) {
+
+  Content.find({}, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -214,15 +214,33 @@ apiRoutes.get("/content", function(req, res) {
     } else {
       res.json({
         success: true,
-        content,
+        payload: data,
       });
     }
   });
 });
 
-apiRoutes.post("/content", function(req, res) {
+apiRoutes.get("/contents/:id", function(req, res) {
+  Content.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.post("/contents", function(req, res) {
   const newContent = new Content({ 
     ...req.body,
+    publishTime: req.body.state === "published" ? new Date() : null,
   });
 
   newContent.save(function(err) {
