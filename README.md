@@ -24,7 +24,7 @@ In MongoDB, create the database for Cortex by running `use cortex-dev`.
 
 ### Config File
 
-Create config file. Call it `config.js`. Inside, write:
+In `/src`, create config file. Call it `config.js`. Inside, write:
 
 ```
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
 
 ## Run Server
 
-Use nodemon to have the server restart on file changes. Install by running `npm install -g nodemon`. Then start up the Node server by running `npm start`.
+Use nodemon to have the server restart on file changes. Install globally by running `npm install -g nodemon`. Then start up the Node server by running `npm start`.
 
 ## Dev Tools
 
