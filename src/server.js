@@ -262,6 +262,36 @@ apiRoutes.post("/contents", function(req, res) {
   });
 });
 
+apiRoutes.put("/contents/:id", function(req, res) {
+  const updatedContent = { 
+    ...req.body,
+    publishTime: req.body.state === "published" ? new Date() : null,
+  };
+
+  Content.findById({ _id: req.params.id }, function(err, foundContent) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      foundContent.set(updatedContent);
+      foundContent.save(function (err, updatedContent) {
+        if (err) {
+          console.log(err);
+          res.json({
+            success: false,
+            message: "Server error."
+          });
+        } else {
+          res.json({ success: true });
+        }
+      });
+    }
+  });
+});
+
 // Apply routes with the prefix /api
 app.use("/api", apiRoutes);
 
