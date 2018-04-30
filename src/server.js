@@ -136,7 +136,7 @@ apiRoutes.post("/createUser", function(req, res) {
 apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
 
-  Content.find(query, function(err, data) {
+  Content.find({ ...query, state: "published" }, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -153,7 +153,47 @@ apiRoutes.get("/contents", function(req, res) {
 });
 
 apiRoutes.get("/contents/:id", function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, data) {
+  Content.findById({ _id: req.params.id, state: "published" }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+// -----------------------
+// Terms (Unprotected)
+// -----------------------
+
+apiRoutes.get("/terms", function(req, res) {
+  const query = req.query || {};
+
+  Term.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/terms/:id", function(req, res) {
+  Term.findById({ _id: req.params.id }, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -264,6 +304,42 @@ apiRoutes.get("/users/:id", function(req, res) {
 // Contents (Protected)
 // -----------------------
 
+apiRoutes.get("/prot/contents", function(req, res) {
+  const query = req.query || {};
+
+  Content.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/prot/contents/:id", function(req, res) {
+  Content.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
 apiRoutes.post("/contents", function(req, res) {
   const newContent = new Content({ 
     ...req.body,
@@ -316,42 +392,6 @@ apiRoutes.put("/contents/:id", function(req, res) {
 // -----------------------
 // Terms (Protected)
 // -----------------------
-
-apiRoutes.get("/terms", function(req, res) {
-  const query = req.query || {};
-
-  Term.find(query, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
-
-apiRoutes.get("/terms/:id", function(req, res) {
-  Term.findById({ _id: req.params.id }, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
 
 apiRoutes.post("/terms", function(req, res) {
   const newTerm = new Term({ 
