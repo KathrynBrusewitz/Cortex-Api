@@ -125,6 +125,42 @@ apiRoutes.post("/createUser", function(req, res) {
   });
 });
 
+apiRoutes.get("/contents", function(req, res) {
+  const query = req.query || {};
+
+  Content.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/contents/:id", function(req, res) {
+  Content.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
 // Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
   // Check for token in header or url parameters or post parameters
@@ -213,44 +249,8 @@ apiRoutes.get("/users/:id", function(req, res) {
 });
 
 // -----------------------
-// Contents
+// Contents (Protected)
 // -----------------------
-
-apiRoutes.get("/contents", function(req, res) {
-  const query = req.query || {};
-
-  Content.find(query, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
-
-apiRoutes.get("/contents/:id", function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
 
 apiRoutes.post("/contents", function(req, res) {
   const newContent = new Content({ 
