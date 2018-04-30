@@ -43,6 +43,10 @@ app.get("/", function(req, res) {
 
 var apiRoutes = express.Router();
 
+// -----------------------
+// Auth and Users (Unprotected)
+// -----------------------
+
 // Authenticate user and get token
 apiRoutes.post("/authenticate", function(req, res) {
   const entry = req.body.entry || null; // expect 'dash' or 'app'
@@ -125,6 +129,10 @@ apiRoutes.post("/createUser", function(req, res) {
   });
 });
 
+// -----------------------
+// Contents (Unprotected)
+// -----------------------
+
 apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
 
@@ -160,6 +168,10 @@ apiRoutes.get("/contents/:id", function(req, res) {
     }
   });
 });
+
+// -----------------------
+// Middleware
+// -----------------------
 
 // Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
@@ -199,7 +211,7 @@ apiRoutes.get("/", function(req, res) {
 });
 
 // -----------------------
-// Users
+// Users (Protected)
 // -----------------------
 
 // Returns back user information with a given token
@@ -302,7 +314,7 @@ apiRoutes.put("/contents/:id", function(req, res) {
 });
 
 // -----------------------
-// Terms
+// Terms (Protected)
 // -----------------------
 
 apiRoutes.get("/terms", function(req, res) {
