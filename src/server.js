@@ -125,6 +125,42 @@ apiRoutes.post("/createUser", function(req, res) {
   });
 });
 
+apiRoutes.get("/contents", function(req, res) {
+  const query = req.query || {};
+
+  Content.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/contents/:id", function(req, res) {
+  Content.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
 // Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
   // Check for token in header or url parameters or post parameters
@@ -162,6 +198,11 @@ apiRoutes.get("/", function(req, res) {
   res.json({ message: "Token verified. Welcome to Cortex API!" });
 });
 
+// -----------------------
+// Users
+// -----------------------
+
+// Returns back user information with a given token
 apiRoutes.get("/user", function(req, res) {
   res.json({
     success: true,
@@ -207,41 +248,9 @@ apiRoutes.get("/users/:id", function(req, res) {
   });
 });
 
-apiRoutes.get("/contents", function(req, res) {
-  const query = req.query || {};
-
-  Content.find(query, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
-
-apiRoutes.get("/contents/:id", function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
+// -----------------------
+// Contents (Protected)
+// -----------------------
 
 apiRoutes.post("/contents", function(req, res) {
   const newContent = new Content({ 
@@ -278,6 +287,93 @@ apiRoutes.put("/contents/:id", function(req, res) {
     } else {
       foundContent.set(updatedContent);
       foundContent.save(function (err, updatedContent) {
+        if (err) {
+          console.log(err);
+          res.json({
+            success: false,
+            message: "Server error."
+          });
+        } else {
+          res.json({ success: true });
+        }
+      });
+    }
+  });
+});
+
+// -----------------------
+// Terms
+// -----------------------
+
+apiRoutes.get("/terms", function(req, res) {
+  const query = req.query || {};
+
+  Term.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/terms/:id", function(req, res) {
+  Term.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.post("/terms", function(req, res) {
+  const newTerm = new Term({ 
+    ...req.body,
+  });
+
+  newTerm.save(function(err) {
+    if (err) {
+      console.log(err);
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
+
+apiRoutes.put("/terms/:id", function(req, res) {
+  const updatedTerm = { 
+    ...req.body,
+  };
+
+  Term.findById({ _id: req.params.id }, function(err, foundTerm) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      foundTerm.set(updatedTerm);
+      foundTerm.save(function (err, updatedTerm) {
         if (err) {
           console.log(err);
           res.json({
