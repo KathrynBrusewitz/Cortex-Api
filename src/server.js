@@ -43,6 +43,10 @@ app.get("/", function(req, res) {
 
 var apiRoutes = express.Router();
 
+// -----------------------
+// Auth and Users (Unprotected)
+// -----------------------
+
 // Authenticate user and get token
 apiRoutes.post("/authenticate", function(req, res) {
   const entry = req.body.entry || null; // expect 'dash' or 'app'
@@ -125,10 +129,14 @@ apiRoutes.post("/createUser", function(req, res) {
   });
 });
 
+// -----------------------
+// Contents (Unprotected)
+// -----------------------
+
 apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
 
-  Content.find(query, function(err, data) {
+  Content.find({ ...query, state: "published" }, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -145,7 +153,7 @@ apiRoutes.get("/contents", function(req, res) {
 });
 
 apiRoutes.get("/contents/:id", function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, data) {
+  Content.findById({ _id: req.params.id, state: "published" }, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -160,6 +168,50 @@ apiRoutes.get("/contents/:id", function(req, res) {
     }
   });
 });
+
+// -----------------------
+// Terms (Unprotected)
+// -----------------------
+
+apiRoutes.get("/terms", function(req, res) {
+  const query = req.query || {};
+
+  Term.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/terms/:id", function(req, res) {
+  Term.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+// -----------------------
+// Middleware
+// -----------------------
 
 // Middleware to verify a token and protects routes below
 apiRoutes.use(function(req, res, next) {
@@ -199,7 +251,7 @@ apiRoutes.get("/", function(req, res) {
 });
 
 // -----------------------
-// Users
+// Users (Protected)
 // -----------------------
 
 // Returns back user information with a given token
@@ -252,6 +304,42 @@ apiRoutes.get("/users/:id", function(req, res) {
 // Contents (Protected)
 // -----------------------
 
+apiRoutes.get("/prot/contents", function(req, res) {
+  const query = req.query || {};
+
+  Content.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/prot/contents/:id", function(req, res) {
+  Content.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
 apiRoutes.post("/contents", function(req, res) {
   const newContent = new Content({ 
     ...req.body,
@@ -302,44 +390,8 @@ apiRoutes.put("/contents/:id", function(req, res) {
 });
 
 // -----------------------
-// Terms
+// Terms (Protected)
 // -----------------------
-
-apiRoutes.get("/terms", function(req, res) {
-  const query = req.query || {};
-
-  Term.find(query, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
-
-apiRoutes.get("/terms/:id", function(req, res) {
-  Term.findById({ _id: req.params.id }, function(err, data) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-});
 
 apiRoutes.post("/terms", function(req, res) {
   const newTerm = new Term({ 
