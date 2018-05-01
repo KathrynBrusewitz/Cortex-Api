@@ -360,11 +360,6 @@ apiRoutes.post("/contents", function(req, res) {
 });
 
 apiRoutes.put("/contents/:id", function(req, res) {
-  const updatedContent = { 
-    ...req.body,
-    publishTime: req.body.state === "published" ? new Date() : null,
-  };
-
   Content.findById({ _id: req.params.id }, function(err, foundContent) {
     if (err) {
       console.log(err);
@@ -373,6 +368,17 @@ apiRoutes.put("/contents/:id", function(req, res) {
         message: "Server error."
       });
     } else {
+      // How should publish time be updated?
+      let newPublishTime = req.body.state === "unpublished" ? null : new Date();
+      newPublishTime = foundContent.state === req.body.state && req.body.state === "published"
+        ? foundContent.publishTime 
+        : newPublishTime;
+
+      const updatedContent = {
+        ...req.body,
+        updateTime: new Date(),
+        publishTime: newPublishTime,
+      };
       foundContent.set(updatedContent);
       foundContent.save(function (err, updatedContent) {
         if (err) {
@@ -384,6 +390,22 @@ apiRoutes.put("/contents/:id", function(req, res) {
         } else {
           res.json({ success: true });
         }
+      });
+    }
+  });
+});
+
+apiRoutes.delete("/contents/:id", function(req, res) {
+  Content.findByIdAndRemove({ _id: req.params.id }, function(err) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
       });
     }
   });
