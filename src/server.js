@@ -462,6 +462,22 @@ apiRoutes.put("/terms/:id", function(req, res) {
   });
 });
 
+apiRoutes.delete("/terms/:id", function(req, res) {
+  Term.findByIdAndRemove({ _id: req.params.id }, function(err) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+      });
+    }
+  });
+});
+
 // Apply routes with the prefix /api
 app.use("/api", apiRoutes);
 
