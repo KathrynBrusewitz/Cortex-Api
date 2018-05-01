@@ -109,12 +109,8 @@ apiRoutes.post("/authenticate", function(req, res) {
 });
 
 apiRoutes.post("/createUser", function(req, res) {
-  const newUser = new User({ 
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    role: req.body.role,
-  });
+  const { name, email, password, role } = req.body;
+  const newUser = new User({ name, email, password, role });
 
   newUser.save(function(err) {
     if (err) {
@@ -333,8 +329,56 @@ apiRoutes.get("/users/:id", function(req, res) {
       });
     } else {
       res.json({
-        success: false,
+        success: true,
         payload: user,
+      });
+    }
+  });
+});
+
+apiRoutes.put("/users/:id", function(req, res) {
+  const updatedUser = { 
+    ...req.body,
+  };
+
+  User.findById({ _id: req.params.id }, function(err, foundUser) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      foundUser.set(updatedUser);
+      foundUser.save(function (err, updatedUser) {
+        if (err) {
+          console.log(err);
+          res.json({
+            success: false,
+            message: "Server error."
+          });
+        } else {
+          res.json({
+            success: true,
+            payload: updatedUser,
+          });
+        }
+      });
+    }
+  });
+});
+
+apiRoutes.delete("/users/:id", function(req, res) {
+  User.findByIdAndRemove({ _id: req.params.id }, function(err) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
       });
     }
   });
@@ -428,7 +472,10 @@ apiRoutes.put("/contents/:id", function(req, res) {
             message: "Server error."
           });
         } else {
-          res.json({ success: true });
+          res.json({
+            success: true,
+            payload: updatedContent,
+          });
         }
       });
     }
