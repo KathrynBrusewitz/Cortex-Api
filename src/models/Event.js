@@ -5,8 +5,10 @@ module.exports = mongoose.model(
   'Event',
   new Schema({
     title: { type: String, required: true },
-    startTime: { type: Date, default: Date.now, required: true },
-    endTime: { type: Date, default: Date.now, required: true },
+    dateStart: { type: Date, default: null },
+    dateEnd: { type: Date, default: null },
     description: { type: String, default: null },
+  }, {
+    strict: false,
   })
 );

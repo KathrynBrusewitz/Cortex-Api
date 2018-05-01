@@ -210,6 +210,46 @@ apiRoutes.get("/terms/:id", function(req, res) {
 });
 
 // -----------------------
+// Events (Unprotected)
+// -----------------------
+
+apiRoutes.get("/events", function(req, res) {
+  const query = req.query || {};
+
+  Event.find(query, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+apiRoutes.get("/events/:id", function(req, res) {
+  Event.findById({ _id: req.params.id }, function(err, data) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+        payload: data,
+      });
+    }
+  });
+});
+
+// -----------------------
 // Middleware
 // -----------------------
 
@@ -464,6 +504,75 @@ apiRoutes.put("/terms/:id", function(req, res) {
 
 apiRoutes.delete("/terms/:id", function(req, res) {
   Term.findByIdAndRemove({ _id: req.params.id }, function(err) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({
+        success: true,
+      });
+    }
+  });
+});
+
+// -----------------------
+// Events (Protected)
+// -----------------------
+
+apiRoutes.post("/events", function(req, res) {
+  console.log(req.body);
+
+  const newEvent = new Event({ 
+    ...req.body,
+  });
+
+  newEvent.save(function(err) {
+    if (err) {
+      console.log(err);
+      res.status(500).send({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
+
+apiRoutes.put("/events/:id", function(req, res) {
+  const updatedEvent = { 
+    ...req.body,
+  };
+
+  Event.findById({ _id: req.params.id }, function(err, foundEvent) {
+    if (err) {
+      console.log(err);
+      res.json({
+        success: false,
+        message: "Server error."
+      });
+    } else {
+      foundEvent.set(updatedEvent);
+      foundEvent.save(function (err, updatedEvent) {
+        if (err) {
+          console.log(err);
+          res.json({
+            success: false,
+            message: "Server error."
+          });
+        } else {
+          res.json({ success: true });
+        }
+      });
+    }
+  });
+});
+
+apiRoutes.delete("/events/:id", function(req, res) {
+  Event.findByIdAndRemove({ _id: req.params.id }, function(err) {
     if (err) {
       console.log(err);
       res.json({
