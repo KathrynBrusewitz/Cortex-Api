@@ -61,6 +61,21 @@ A quick explanation of the dependencies:<br>
 `body-parser` lets us get info from POST requests and URL parameters<br>
 `jsonwebtoken` is how we create, sign, and verify JSON Web Tokens<br>
 
+
+http://mongoosejs.com/docs/populate.html#query-conditions
+```
+Story.
+  find(...).
+  populate({
+    path: 'fans',
+    match: { age: { $gte: 21 }},
+    // Explicitly exclude `_id`, see http://bit.ly/2aEfTdB
+    select: 'name -_id',
+    options: { limit: 5 }
+  }).
+  exec();
+```
+
 Route Examples
 ```
 GET /api/content                                  get all content (note: app must only receive ?state=published)

@@ -132,7 +132,9 @@ apiRoutes.post("/createUser", function(req, res) {
 apiRoutes.get("/contents", function(req, res) {
   const query = req.query || {};
 
-  Content.find({ ...query, state: "published" }, function(err, data) {
+  Content.find({ ...query, state: "published" })
+  .populate('creators')
+  .exec(function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -391,7 +393,9 @@ apiRoutes.delete("/users/:id", function(req, res) {
 apiRoutes.get("/prot/contents", function(req, res) {
   const query = req.query || {};
 
-  Content.find(query, function(err, data) {
+  Content.find({ ...query })
+  .populate('creators')
+  .exec(function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -633,6 +637,35 @@ apiRoutes.delete("/events/:id", function(req, res) {
     }
   });
 });
+
+// -----------------------
+// Bookmarks (Protected)
+// -----------------------
+
+// apiRoutes.get("/users/:id/bookmarks", function(req, res) {
+//   const query = req.query || {};
+
+//   User.aggregate([
+//     { $lookup: {
+//       from: "inventory",
+//       localField: "item",
+//       foreignField: "sku",
+//       as: "inventory_docs"
+//     }}
+//   ]).
+//   then(function (res) {
+//     console.log(res); // [ { maxBalance: 98000 } ]
+//   });
+// });
+
+// Users.aggregate([
+//   { $group: { _id: null, maxBalance: { $max: '$balance' }}},
+//   { $project: { _id: 0, maxBalance: 1 }}
+// ]).
+// then(function (res) {
+//   console.log(res); // [ { maxBalance: 98000 } ]
+// });
+
 
 // Apply routes with the prefix /api
 app.use("/api", apiRoutes);
