@@ -28,6 +28,7 @@ app.options('*', cors()); // Enable CORS pre-flight across all routes
 // Routing
 // =======================
 var api = express.Router();
+var SearchController = require('./controllers/SearchController.js');
 var ContentsController = require('./controllers/ContentsController.js');
 var AuthController = require('./controllers/AuthController.js');
 var EventsController = require('./controllers/EventsController.js');
@@ -40,6 +41,7 @@ app.get("/", function(req, res) {
 
 api.post("/authenticate", AuthController.login);
 api.post("/createUser", AuthController.register);
+api.get("/search", SearchController.search);
 
 api.get('/contents', ContentsController.getContents);
 api.get("/contents/:id", ContentsController.getContent);
