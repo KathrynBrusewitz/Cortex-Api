@@ -1,9 +1,9 @@
-var Event = require("../models/Event");
+var User = require("../models/User");
 
-exports.getEvents = function(req, res) {
+exports.getUsers = function(req, res) {
   const query = req.query || {};
 
-  Event.find({ ...query })
+  User.find(query)
   .exec(function(err, data) {
     if (err) {
       console.log(err);
@@ -20,8 +20,8 @@ exports.getEvents = function(req, res) {
   });
 };
 
-exports.getEvent = function(req, res) {
-  Event.findById({ _id: req.params.id }, function(err, data) {
+exports.getUser = function(req, res) {
+  User.findById({ _id: req.params.id }, function(err, data) {
     if (err) {
       console.log(err);
       res.json({
@@ -37,12 +37,12 @@ exports.getEvent = function(req, res) {
   });
 };
 
-exports.postEvent = function(req, res) {
-  const newEvent = new Event({ 
+exports.postUser = function(req, res) {
+  const newUser = new User({ 
     ...req.body,
   });
 
-  newEvent.save(function(err) {
+  newUser.save(function(err) {
     if (err) {
       console.log(err);
       res.status(500).send({
@@ -55,8 +55,8 @@ exports.postEvent = function(req, res) {
   });
 };
 
-exports.putEvent = function(req, res) {
-  Event.findById({ _id: req.params.id }, function(err, foundEvent) {
+exports.putUser = function(req, res) {
+  User.findById({ _id: req.params.id }, function(err, foundUser) {
     if (err) {
       console.log(err);
       res.json({
@@ -64,11 +64,11 @@ exports.putEvent = function(req, res) {
         message: "Server error."
       });
     } else {
-      const updatedEvent = {
+      const updatedUser = {
         ...req.body,
       };
-      foundEvent.set(updatedEvent);
-      foundEvent.save(function (err, updatedEvent) {
+      foundUser.set(updatedUser);
+      foundUser.save(function (err, updatedUser) {
         if (err) {
           console.log(err);
           res.json({
@@ -78,7 +78,7 @@ exports.putEvent = function(req, res) {
         } else {
           res.json({
             success: true,
-            payload: updatedEvent,
+            payload: updatedUser,
           });
         }
       });
@@ -86,8 +86,8 @@ exports.putEvent = function(req, res) {
   });
 };
 
-exports.deleteEvent = function(req, res) {
-  Event.findByIdAndRemove({ _id: req.params.id }, function(err) {
+exports.deleteUser = function(req, res) {
+  User.findByIdAndRemove({ _id: req.params.id }, function(err) {
     if (err) {
       console.log(err);
       res.json({
