@@ -106,6 +106,7 @@ Just searches through content for now. Looks for two fields in url parameters:
 ```
 import queryString from 'query-string';
 
+// get all articles whose title, body or description match search string
 const filters = { q: 'my search string', options: { type: 'article' } };
 const query = queryString.stringify(filters);
 
@@ -115,36 +116,62 @@ baseURL,
 ```
 
 ### `api.get('/contents', ContentsController.getContents);`
+Returns all <i>published</i> contents. Can filter contents in url parameters.
+```
+import queryString from 'query-string';
+
+const filters = { type: 'podcast' }; // get all podcasts
+const query = queryString.stringify(filters);
+
+method: 'get',
+url: `/contents?${query}`
+baseURL,
+```
+
 ```
 method: 'get',
-url: `/prot/contents?${query}`,
+url: '/contents'
 baseURL,
-headers: {'x-access-token': cookies.get('token')},
 ```
 
 ### `api.get("/contents/:id", ContentsController.getContent);`
+Returns <i>published</i> content object given a content id.
 ```
-
+method: 'get',
+url: `/contents/${id}`,
+baseURL,
 ```
 
 ### `api.get("/terms", TermsController.getTerms);`
+Returns all terms. Can filter terms in url parameters.
 ```
-
+method: 'get',
+url: '/terms',
+baseURL,
 ```
 
 ### `api.get("/terms/:id", TermsController.getTerm);`
+Returns term object given a term id.
 ```
-
+method: 'get',
+url: `/terms/${id}`,
+baseURL,
 ```
 
 ### `api.get("/events", EventsController.getEvents);`
+Returns all events. Can filter events in url parameters.
 ```
-
+method: 'get',
+url: '/events',
+baseURL,
 ```
 
 ### `api.get("/events/:id", EventsController.getEvent);`
+Returns event object given an event id.
 ```
-
+method: 'get',
+url: `/events/${id}`,
+baseURL,
 ```
 
 
