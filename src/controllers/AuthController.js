@@ -43,6 +43,8 @@ exports.login = function(req, res) {
               name: user.name,
               email: user.email,
               role: user.role,
+              bookmarks: user.bookmarks,
+              notes: user.notes,
               entry,
             };
 
