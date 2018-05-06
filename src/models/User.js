@@ -10,6 +10,6 @@ module.exports = mongoose.model(
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin', 'writer', 'artist', 'reader'], required: true },
     bookmarks: [{ type: ObjectId, ref: 'Content', default: [] }],
-    notes: [{ type: ObjectId, ref: 'Term', default: [] }],
+    notes: [{ body: 'string', term: ObjectId }],
   })
 );
