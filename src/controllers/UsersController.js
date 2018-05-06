@@ -4,6 +4,8 @@ exports.getUsers = function(req, res) {
   const query = req.query || {};
 
   User.find(query)
+  .populate('bookmarks')
+  .populate('notes')
   .exec(function(err, data) {
     if (err) {
       console.log(err);
@@ -21,7 +23,10 @@ exports.getUsers = function(req, res) {
 };
 
 exports.getUser = function(req, res) {
-  User.findById({ _id: req.params.id }, function(err, data) {
+  User.findById({ _id: req.params.id })
+  .populate('bookmarks')
+  .populate('notes')
+  .exec(function(err, data) {
     if (err) {
       console.log(err);
       res.json({

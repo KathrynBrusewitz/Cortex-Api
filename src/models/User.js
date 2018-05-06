@@ -9,7 +9,7 @@ module.exports = mongoose.model(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ['admin', 'writer', 'artist', 'reader'], required: true },
-    // bookmarks: [{ type: ObjectId, ref: 'Content', default: [] }],
-    // bookmarks: [{body:"string", by: mongoose.Schema.Types.ObjectId}],
+    bookmarks: [{ type: ObjectId, ref: 'Content', default: [] }],
+    notes: [{ type: ObjectId, ref: 'Term', default: [] }],
   })
 );
