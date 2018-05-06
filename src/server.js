@@ -16,13 +16,11 @@ var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
 app.set("superSecret", config.secret);
-// `extended` determines which parsing library to use: true=qs, false=querystring
-// https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(cors());
-app.options('*', cors()); // Enable CORS pre-flight across all routes
+app.options('*', cors());
 
 // =======================
 // Routing

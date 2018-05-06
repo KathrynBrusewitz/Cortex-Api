@@ -6,13 +6,13 @@ API for Cortex Admin CMS for Grey Matters App and other science content/experien
 
 Below should give you enough instructions to get started.
 
-## Dev Setup
+# Dev Setup
 
-### Dependencies
+## Dependencies
 
 Install packages by running `npm install`.
 
-### MongoDB
+## MongoDB
 
 Install MongoDB. You can install on Mac using either Homebrew or manually. With Homebrew, run `brew update` and `brew install mongodb`.
 
@@ -22,7 +22,7 @@ Now you just need to connect to the service. Connect to it by running `mongo`. H
 
 In MongoDB, create the database for Cortex by running `use cortex-dev`.
 
-### Config File
+## Config File
 
 In `/src`, create config file. Call it `config.js`. Inside, write:
 
@@ -50,9 +50,9 @@ In Robo 3T, set the address to `localhost` and the port to `27017`. Name the con
 
 You can use [POSTman](https://www.getpostman.com/) to test routes through a GUI.
 
-## Developer Notes
+# Packages and Configuration
 
-<i>To be organized into docs at a later time.</i>
+`/src/server.js` is the app entry and defines all the packages, configurations, and routing needed for the server. 
 
 A quick explanation of the dependencies:<br>
 `express` is the Node framework<br>
@@ -60,7 +60,98 @@ A quick explanation of the dependencies:<br>
 `morgan` logs requests to the console<br>
 `body-parser` lets us get info from POST requests and URL parameters<br>
 `jsonwebtoken` is how we create, sign, and verify JSON Web Tokens<br>
+`cors` provides Connect/Express middleware that can enable CORS with various options.<br>
 
+### `app.use(bodyParser.urlencoded({ extended: false }));`
+
+The `extended` option determines which parsing library to use. If extended is true, express will use `qs`. If false, express will use `querystring`. More information available [here](https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0).
+
+### `app.options('*', cors());`
+
+Enables CORS pre-flight across all routes. This is needed because we have certain CORS requests that are considered 'complex' and require an initial OPTIONS request (called the "pre-flight request"). An example of a 'complex' CORS request is one that uses an HTTP verb other than GET/HEAD/POST (such as DELETE) or that uses custom headers. To enable pre-flighting, we add a new OPTIONS handler for all `('*')` routes. More information available [here](https://github.com/expressjs/cors).
+
+# Routing and Controllers
+
+<i>The following example API calls use [Axios](https://github.com/axios/axios) and [query-string](https://www.npmjs.com/package/query-string). See `/src/server.js` for most up-to-date routes.</i>
+
+### `api.post("/authenticate", AuthController.login);`
+```
+method: 'post',
+url: '/authenticate',
+baseURL,
+data: {
+  email,
+  password,
+  entry: 'dash' or 'app'
+}
+```
+
+### `api.post("/createUser", AuthController.register);`
+```
+method: 'post',
+url: '/createUser',
+baseURL,
+data: {
+  name,
+  email,
+  password,
+  role: 'admin', 'writer', 'reader', or 'artist'
+```
+
+### `api.get("/search", SearchController.search);`
+Just searches through content for now. Looks for two fields in url parameters:
+- `q`: Search string. Search is case insensitive and looks through `title`, `body`, and `description` fields. If empty, defaults to `{}`.
+- `options`: Filters to narrow down search. If empty, defaults to `{}`.
+
+```
+import queryString from 'query-string';
+
+const filters = { q: 'my search string', options: { type: 'article' } };
+const query = queryString.stringify(filters);
+
+method: 'get',
+url: `/search?${query}`,
+baseURL,
+```
+
+### `api.get('/contents', ContentsController.getContents);`
+```
+method: 'get',
+url: `/prot/contents?${query}`,
+baseURL,
+headers: {'x-access-token': cookies.get('token')},
+```
+
+### `api.get("/contents/:id", ContentsController.getContent);`
+```
+
+```
+
+### `api.get("/terms", TermsController.getTerms);`
+```
+
+```
+
+### `api.get("/terms/:id", TermsController.getTerm);`
+```
+
+```
+
+### `api.get("/events", EventsController.getEvents);`
+```
+
+```
+
+### `api.get("/events/:id", EventsController.getEvent);`
+```
+
+```
+
+
+
+
+
+# Query Conditions
 
 http://mongoosejs.com/docs/populate.html#query-conditions
 ```
@@ -74,39 +165,4 @@ Story.
     options: { limit: 5 }
   }).
   exec();
-```
-
-Route Examples
-```
-GET /api/content                                  get all content (note: app must only receive ?state=published)
-  GET /api/content?type=article                   get all articles
-  GET /api/content?type=podcast                   get all podcasts
-  GET /api/content?type=video                     get all videos
-  GET /api/content?type=article&state=published   get all published articles
-GET /api/content/:id                              get content with id
-
-GET /api/events
-GET /api/events/:id
-
-GET /api/terms
-GET /api/terms/:id
-
-GET /api/users
-GET /api/users/:id
-GET /api/users/:id/bookmarks                      get all bookmarks for a user
-GET /api/users/:id/bookmarks?type=video           get all video bookmarks for a user
-
-Same pattern across routes:
-POST /api/{object}/
-PUT /api/{object}/:id
-DELETE /api/{object}/:id
-
-// Controllers
-getBookmarks(userId)
-
-getBookmarks(contentId)
-  Find all in /content that match
-
-countBookmarks(contentId)
-  Call getBookmarks(contentId), return length
 ```
