@@ -96,6 +96,7 @@ data: {
   email,
   password,
   role: 'admin', 'writer', 'reader', or 'artist'
+}
 ```
 
 ### `api.get("/search", SearchController.search);`
@@ -174,9 +175,23 @@ url: `/events/${id}`,
 baseURL,
 ```
 
+### `api.get("/user", AuthController.tokenLogin);`
+Login with a token. Returns back user object with authenticated token.
+```
+method: 'get',
+url: '/user',
+baseURL,
+headers: {'x-access-token': your_token,
+```
 
-
-
+### `api.get("/users", UsersController.getUsers);`
+Returns all users. Can filter users in url parameters. Requires token.
+```
+method: 'get',
+url: `/users?${query}`,
+baseURL,
+headers: {'x-access-token': cookies.get('token')},
+```
 
 # Query Conditions
 
