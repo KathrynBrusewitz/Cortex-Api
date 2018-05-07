@@ -11,5 +11,7 @@ module.exports = mongoose.model(
     role: { type: String, enum: ['admin', 'writer', 'artist', 'reader'], required: true },
     bookmarks: [{ type: ObjectId, ref: 'Content', default: [] }],
     notes: [{ body: 'string', term: ObjectId }],
+  }, {
+    strict: false,
   })
 );
