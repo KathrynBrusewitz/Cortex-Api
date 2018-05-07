@@ -118,6 +118,8 @@ baseURL,
 
 ### `api.get('/contents', ContentsController.getContents);`
 Returns all <i>published</i> contents. Can filter contents in url parameters.
+
+To get all contents based on type of content:
 ```
 import queryString from 'query-string';
 
@@ -129,11 +131,25 @@ url: `/contents?${query}`
 baseURL,
 ```
 
+To get all contents that match an id in an array:
+```
+import queryString from 'query-string';
+
+const filters = { contentIds: ['id_1', 'id_2', 'id_3' ] };
+const query = queryString.stringify(filters);
+
+method: 'get',
+url: `/contents?${query}`
+baseURL,
+```
+
+To get all contents without filtering:
 ```
 method: 'get',
 url: '/contents'
 baseURL,
 ```
+
 
 ### `api.get("/contents/:id", ContentsController.getContent);`
 Returns <i>published</i> content object given a content id.

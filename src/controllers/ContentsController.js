@@ -1,7 +1,14 @@
 var Content = require("../models/Content");
 
 exports.getContents = function(req, res) {
-  const query = req.query || {};
+  // Build query:
+  //   If req.query has contentIds, then build query just with that
+  //   If not, then build query as usual
+  let query = req.query || {};
+
+  if (req.query.contentIds) {
+    query = { _id: { $in: req.query.contentIds } };
+  }
 
   Content.find({ ...query, state: "published" })
   .populate('creators')
