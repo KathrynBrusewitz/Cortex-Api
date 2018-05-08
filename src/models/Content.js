@@ -18,6 +18,7 @@ module.exports = mongoose.model(
     description: { type: String, default: null },
     duration: { type: Number, default: null }, // milliseconds
     references: { type: String, default: null },
+    url: { type: String, default: null }, // youtube url, podcast url, etc.
   }, {
     strict: false,
   })
