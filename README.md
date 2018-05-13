@@ -28,7 +28,7 @@ In `/src`, create config file. Call it `config.js`. Inside, write:
 
 ```
 module.exports = {
-  secret: "banana",
+  tokenSecret: "banana",
   database: "mongodb://127.0.0.1:27017/cortex-dev"
 };
 ```
@@ -41,14 +41,14 @@ Use nodemon to have the server restart on file changes. Install globally by runn
 
 ### Robo 3T (Optional)
 
-You can use [Robo 3T](https://robomongo.org/) to manage the database through a GUI.
+[Robo 3T](https://robomongo.org/) manages the database through a GUI.
 
 In Robo 3T, set the address to `localhost` and the port to `27017`. Name the connection anything you want.
 
 
 ### POSTman (Optional)
 
-You can use [POSTman](https://www.getpostman.com/) to test routes through a GUI.
+[POSTman](https://www.getpostman.com/) tests routes through a GUI.
 
 # Packages and Configuration
 

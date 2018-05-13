@@ -15,7 +15,7 @@ var jwt = require("jsonwebtoken");
 var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
-app.set("superSecret", config.secret);
+app.set("tokenSecret", config.tokenSecret);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
@@ -57,7 +57,7 @@ api.use(function(req, res, next) {
 
   if (token) {
     // Verify secret and check expiration
-    jwt.verify(token, app.get("superSecret"), function(err, decoded) {
+    jwt.verify(token, app.get("tokenSecret"), function(err, decoded) {
       if (err) {
         console.log(err);
         res.json({

@@ -46,7 +46,7 @@ exports.login = function(req, res) {
         entry,
       };
 
-            var token = jwt.sign(payload, req.app.get("superSecret"), {
+      var token = jwt.sign(payload, req.app.get("tokenSecret"), {
         expiresIn: 86400 // Expires in 24 hours
       });
 
