@@ -20,7 +20,7 @@ exports.search = function(req, res) {
       console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({

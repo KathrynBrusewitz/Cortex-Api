@@ -14,10 +14,9 @@ exports.getContents = function(req, res) {
   .populate('creators')
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -31,10 +30,9 @@ exports.getContents = function(req, res) {
 exports.getContent = function(req, res) {
   Content.findById({ _id: req.params.id, state: "published" }, function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -52,10 +50,9 @@ exports.getProtectedContents = function(req, res) {
   .populate('creators')
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -69,10 +66,9 @@ exports.getProtectedContents = function(req, res) {
 exports.getProtectedContent = function(req, res) {
   Content.findById({ _id: req.params.id }, function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -91,10 +87,9 @@ exports.postContent = function(req, res) {
 
   newContent.save(function(err) {
     if (err) {
-      console.log(err);
       res.status(500).send({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({ success: true });
@@ -105,10 +100,9 @@ exports.postContent = function(req, res) {
 exports.putContent = function(req, res) {
   Content.findById({ _id: req.params.id }, function(err, foundContent) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       // How should publish time be updated?
@@ -125,10 +119,9 @@ exports.putContent = function(req, res) {
       foundContent.set(updatedContent);
       foundContent.save(function (err, updatedContent) {
         if (err) {
-          console.log(err);
           res.json({
             success: false,
-            message: "Server error."
+            message: JSON.stringify(err),
           });
         } else {
           res.json({
@@ -144,10 +137,9 @@ exports.putContent = function(req, res) {
 exports.deleteContent = function(req, res) {
   Content.findByIdAndRemove({ _id: req.params.id }, function(err) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({

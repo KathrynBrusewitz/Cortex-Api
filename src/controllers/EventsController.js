@@ -6,10 +6,9 @@ exports.getEvents = function(req, res) {
   Event.find({ ...query })
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -23,10 +22,9 @@ exports.getEvents = function(req, res) {
 exports.getEvent = function(req, res) {
   Event.findById({ _id: req.params.id }, function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -44,10 +42,9 @@ exports.postEvent = function(req, res) {
 
   newEvent.save(function(err) {
     if (err) {
-      console.log(err);
       res.status(500).send({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({ success: true });
@@ -58,10 +55,9 @@ exports.postEvent = function(req, res) {
 exports.putEvent = function(req, res) {
   Event.findById({ _id: req.params.id }, function(err, foundEvent) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       const updatedEvent = {
@@ -70,10 +66,9 @@ exports.putEvent = function(req, res) {
       foundEvent.set(updatedEvent);
       foundEvent.save(function (err, updatedEvent) {
         if (err) {
-          console.log(err);
           res.json({
             success: false,
-            message: "Server error."
+            message: JSON.stringify(err),
           });
         } else {
           res.json({
@@ -89,10 +84,9 @@ exports.putEvent = function(req, res) {
 exports.deleteEvent = function(req, res) {
   Event.findByIdAndRemove({ _id: req.params.id }, function(err) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({

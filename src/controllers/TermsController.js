@@ -9,7 +9,7 @@ exports.getTerms = function(req, res) {
       console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -26,7 +26,7 @@ exports.getTerm = function(req, res) {
       console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -47,7 +47,7 @@ exports.postTerm = function(req, res) {
       console.log(err);
       res.status(500).send({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({ success: true });
@@ -61,7 +61,7 @@ exports.putTerm = function(req, res) {
       console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       const updatedTerm = {
@@ -73,7 +73,7 @@ exports.putTerm = function(req, res) {
           console.log(err);
           res.json({
             success: false,
-            message: "Server error."
+            message: JSON.stringify(err),
           });
         } else {
           res.json({
@@ -92,7 +92,7 @@ exports.deleteTerm = function(req, res) {
       console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({

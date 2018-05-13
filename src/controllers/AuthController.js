@@ -8,60 +8,54 @@ exports.login = function(req, res) {
   User.findOne({ email: req.body.email },
     function(err, user) {
       if (err) {
-        console.log(err);
-        res.json({
+        return res.json({
           success: false,
-          message: "Server error."
+          message: JSON.stringify(err),
         });
       }
-
+      // Email not found
       if (!user) {
-        // Email not found
-        res.json({
+        return res.json({
           success: false,
           message: "Authentication failed. Incorrect credentials."
         });
-      } else if (user) {
-        // Password mismatch
-        if (user.password != req.body.password) {
-          res.json({
-            success: false,
-            message: "Authentication failed. Incorrect credentials."
-          });
-        } else {
-          if (entry === 'dash' && user.role !== 'admin') {
-            // Only admins can enter dash
-            res.json({
-              success: false,
-              message: "Authentication failed. You are not an admin."
-            });
-          } else {
-            // Create a token with only our given payload
-            // Don't pass in the entire user, that has the password
-            const payload = {
-              _id: user._id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-              bookmarks: user.bookmarks,
-              notes: user.notes,
-              entry,
-            };
+      }
+      // Password mismatch
+      if (user.password != req.body.password) {
+        return res.json({
+          success: false,
+          message: "Authentication failed. Incorrect credentials."
+        });
+      }
+      // Only admins can enter dash
+      if (entry === 'dash' && user.role !== 'admin') {
+        return res.json({
+          success: false,
+          message: "Authentication failed. You are not an admin."
+        });
+      }
+      // Create a token with only our given payload
+      // Don't pass in the entire user, that has the password
+      const payload = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        bookmarks: user.bookmarks,
+        notes: user.notes,
+        entry,
+      };
 
             var token = jwt.sign(payload, req.app.get("superSecret"), {
-              expiresIn: 86400 // Expires in 24 hours
-            });
+        expiresIn: 86400 // Expires in 24 hours
+      });
 
-            // Return the information including token as JSON
-            res.json({
-              success: true,
-              message: `Enjoy your ${user.role} token!`,
-              token,
-              ...payload,
-            });
-          }
-        }
-      }
+      // Return the information including token as JSON
+      res.json({
+        success: true,
+        token,
+        ...payload,
+      });
     }
   ).select("+password");
 };
@@ -72,10 +66,9 @@ exports.register = function(req, res) {
 
   newUser.save(function(err) {
     if (err) {
-      console.log(err);
       res.status(500).send({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({ success: true });
@@ -85,10 +78,16 @@ exports.register = function(req, res) {
 
 // Returns back user information with a given token
 exports.tokenLogin = function(req, res) {
-  res.json({
-    success: true,
-    message: `Enjoy your ${req.decoded.role} token!`,
-    token: req.token,
-    ...req.decoded,
-  });
+  if (!req.token || !req.decoded) {
+    res.json({
+      success: false,
+      message: 'AuthController.tokenLogin requires req.token and req.decoded',
+    });
+  } else {
+    res.json({
+      success: true,
+      token: req.token,
+      ...req.decoded,
+    });
+  }
 };

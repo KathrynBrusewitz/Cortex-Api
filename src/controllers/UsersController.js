@@ -8,10 +8,9 @@ exports.getUsers = function(req, res) {
   .populate('notes')
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -28,10 +27,9 @@ exports.getUser = function(req, res) {
   .populate('notes')
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
@@ -49,10 +47,9 @@ exports.postUser = function(req, res) {
 
   newUser.save(function(err) {
     if (err) {
-      console.log(err);
       res.status(500).send({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({ success: true });
@@ -63,12 +60,17 @@ exports.postUser = function(req, res) {
 exports.putUser = function(req, res) {
   User.findById({ _id: req.params.id }, function(err, foundUser) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
+      if (!foundUser) {
+        return res.json({
+          success: false,
+          message: 'User not found.',
+        });
+      }
       const updatedUser = {
         ...req.body,
       };
@@ -78,7 +80,7 @@ exports.putUser = function(req, res) {
           console.log(err);
           res.json({
             success: false,
-            message: "Server error."
+            message: JSON.stringify(err),
           });
         } else {
           res.json({
@@ -94,10 +96,9 @@ exports.putUser = function(req, res) {
 exports.deleteUser = function(req, res) {
   User.findByIdAndRemove({ _id: req.params.id }, function(err) {
     if (err) {
-      console.log(err);
       res.json({
         success: false,
-        message: "Server error."
+        message: JSON.stringify(err),
       });
     } else {
       res.json({
