@@ -9,6 +9,7 @@ module.exports = mongoose.model(
     dateEnd: { type: Date, default: null },
     description: { type: String, default: null },
     location: { type: String, default: null },
+    url: { type: String, default: null },
   }, {
     strict: false,
   })
