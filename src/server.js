@@ -90,6 +90,7 @@ api.get("/users/:id", UsersController.getUser);
 api.post("/users", UsersController.postUser);
 api.put("/users/:id", UsersController.putUser);
 api.delete("/users/:id", UsersController.deleteUser);
+api.post("/users/invite", UsersController.inviteUser);
 
 api.get("/prot/contents", ContentsController.getProtectedContents);
 api.get("/prot/contents/:id", ContentsController.getProtectedContent);
