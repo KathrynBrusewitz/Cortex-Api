@@ -74,6 +74,14 @@ Enables CORS pre-flight across all routes. This is needed because we have certai
 
 <i>The following example API calls use [Axios](https://github.com/axios/axios) and [query-string](https://www.npmjs.com/package/query-string). See `/src/server.js` for most up-to-date routes.</i>
 
+### Errors
+```
+res.json({
+  success: Boolean,
+  message: String,
+});
+```
+
 ### `api.post("/authenticate", AuthController.login);`
 ```
 method: 'post',
@@ -84,6 +92,13 @@ data: {
   password,
   entry: 'dash' or 'app'
 }
+```
+```
+res.json({
+  success: true,
+  token: String,
+  payload: User Object,
+});
 ```
 
 ### `api.post("/createUser", AuthController.register);`
@@ -97,6 +112,11 @@ data: {
   password,
   role: 'admin', 'writer', 'reader', or 'artist'
 }
+```
+```
+res.json({
+  success: true,
+});
 ```
 
 ### `api.get("/search", SearchController.search);`
