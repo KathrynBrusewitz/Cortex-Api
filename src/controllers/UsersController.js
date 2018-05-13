@@ -1,6 +1,8 @@
 var User = require("../models/User");
 var Code = require("../models/Code");
 var uuidv4 = require('uuid/v4');
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 exports.getUsers = function(req, res) {
   const query = req.query || {};
@@ -43,18 +45,35 @@ exports.getUser = function(req, res) {
 };
 
 exports.postUser = function(req, res) {
-  const newUser = new User({ 
-    ...req.body,
-  });
+  const { name, email, password, role } = req.body;
+  if (!name || !email || !password || !role) {
+    return res.status(500).send({
+      success: false,
+      message: 'User registration is missing one or more req params: name, email, password, role',
+    });
+  }
 
-  newUser.save(function(err) {
+  bcrypt.hash(password, saltRounds, function(err, hash) {
     if (err) {
       res.status(500).send({
         success: false,
         message: JSON.stringify(err),
       });
     } else {
-      res.json({ success: true });
+      const newUser = new User({ name, email, password: hash, role });
+
+      newUser.save(function(err) {
+        if (err) {
+          res.status(500).send({
+            success: false,
+            message: JSON.stringify(err),
+          });
+        } else {
+          res.json({ 
+            success: true,
+          });
+        }
+      });
     }
   });
 };
@@ -73,24 +92,52 @@ exports.putUser = function(req, res) {
           message: 'User not found.',
         });
       }
-      const updatedUser = {
-        ...req.body,
-      };
-      foundUser.set(updatedUser);
-      foundUser.save(function (err, updatedUser) {
-        if (err) {
-          console.log(err);
-          res.json({
-            success: false,
-            message: JSON.stringify(err),
+      if (req.body.password) {
+        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+          if (err) {
+            return res.status(500).send({
+              success: false,
+              message: JSON.stringify(err),
+            });
+          }
+          const updatedUser = {
+            ...req.body,
+            password: hash,
+          };
+          foundUser.set(updatedUser);
+          foundUser.save(function (err, savedUser) {
+            if (err) {
+              res.json({
+                success: false,
+                message: JSON.stringify(err),
+              });
+            } else {
+              res.json({
+                success: true,
+                payload: savedUser,
+              });
+            }
           });
-        } else {
-          res.json({
-            success: true,
-            payload: updatedUser,
-          });
-        }
-      });
+        });
+      } else {
+        const updatedUser = {
+          ...req.body,
+        };
+        foundUser.set(updatedUser);
+        foundUser.save(function (err, savedUser) {
+          if (err) {
+            res.json({
+              success: false,
+              message: JSON.stringify(err),
+            });
+          } else {
+            res.json({
+              success: true,
+              payload: savedUser,
+            });
+          }
+        });
+      }
     }
   });
 };
