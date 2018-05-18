@@ -244,3 +244,18 @@ Story.
   }).
   exec();
 ```
+
+# Deployment
+
+<i>These docs are in progress...</i>
+
+The database is deployed on [Amazon EC2](http://aws.amazon.com/ec2/) using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas?jmp=docs&_ga=2.199929194.530729967.1526360843-106194169.1523349626). Atlas is a hosted database as a service that deploys MongoDB on AWS EC2 instances. The Atlas GUI allows you to:
+
+## Cluster
+
+For our purposes, we are using a free M0 shared cluster (a sandbox instance for getting started), with shared RAM and encrypted 512 MB Storage, MongoDB 3.6 and no backup (only available with M10+).
+
+- Max concurrent connections: 100
+- Networking performance: Low
+- Max databases: 100
+- Max collections: 500

@@ -14,7 +14,7 @@ module.exports = mongoose.model(
     updateTime: { type: Date, default: Date.now }, // updateTime == createTime
     publishTime: { type: Date, default: null },
     // Content Type Specific Details
-    body: { type: String, default: null },
+    body: { type: JSON, default: null }, // JSON format from Slate Framework
     description: { type: String, default: null },
     duration: { type: Number, default: null }, // milliseconds
     references: { type: String, default: null },
