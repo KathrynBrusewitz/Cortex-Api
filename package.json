@@ -1,6 +1,13 @@
 {
   "name": "cortex-api",
   "version": "1.0.0",
+  "private": true,
+  "author": {
+    "name": "Kathryn Brusewitz",
+		"email": "kathryn.brusewitz@gmail.com",
+		"url": "http://kathryn.vc/"
+  },
+  "license": "MIT",
   "description": "Cortex API",
   "repository": {
     "type": "git",
@@ -11,8 +18,6 @@
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Kathryn Brusewitz",
-  "license": "ISC",
   "dependencies": {
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.2",

@@ -34,7 +34,7 @@ var UsersController = require('./controllers/UsersController.js');
 var TermsController = require('./controllers/TermsController.js');
 
 app.get("/", function(req, res) {
-  res.send(`Cortex API now listening on port ${port}`);
+  res.send(`Cortex API available on port ${port}`);
 });
 
 api.post("/authenticate", AuthController.login);
