@@ -14,7 +14,8 @@ module.exports = mongoose.model(
     updateTime: { type: Date, default: Date.now }, // updateTime == createTime
     publishTime: { type: Date, default: null },
     // Content Type Specific Details
-    body: { type: JSON, default: null }, // JSON format from Slate Framework
+    body: { type: String, default: null },
+    bodySlate: { type: JSON, default: null }, // JSON format for Slate Framework
     description: { type: String, default: null },
     duration: { type: Number, default: null }, // milliseconds
     references: { type: String, default: null },
@@ -23,8 +24,3 @@ module.exports = mongoose.model(
     strict: false,
   })
 );
-
-// Future properties:
-// media id/key/ref - for podcasts and videos to pull from another DB
-// category or categories - for sorting and searching
-// comments - using embedded documents
