@@ -249,9 +249,19 @@ Story.
 
 <i>These docs are in progress...</i>
 
-The database is deployed on [Amazon EC2](http://aws.amazon.com/ec2/) using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas?jmp=docs&_ga=2.199929194.530729967.1526360843-106194169.1523349626). Atlas is a hosted database as a service that deploys MongoDB on AWS EC2 instances. The Atlas GUI allows you to:
+The Database is deployed on an instance of [AWS EC2](http://aws.amazon.com/ec2/) hosted by [MongoDB Atlas](https://www.mongodb.com/cloud/atlas?jmp=docs&_ga=2.199929194.530729967.1526360843-106194169.1523349626). Atlas is a hosted database as a service that deploys MongoDB on AWS EC2 instances. The Atlas GUI makes management of the DB just a little easier. For security reasons, access to the database requires your IP to be whitelisted.
 
-## Cluster
+The API is deployed on a separate instance of [AWS EC2](http://aws.amazon.com/ec2/) and is managed through the AWS console.
+
+The Dashboard client is hosted in an [AWS S3 Bucket](https://aws.amazon.com/s3/). S3 servers are made for serving static files like the client `build` quickly and reliably. If the load on dashboard content grows, files are automatically replicated to more servers so they will always be available. Also, CloudFront works in conjunction with S3. When activated on the bucket, content is moved to edge locations, so that content is available for high speed transfer. It's also very cost-effectve: If only a few files get little traffic, it's only a few cents a month.
+
+Essentially the benefits of this structure are:
+- Separation of Code
+- Separation of Deployment
+- Faster Iteration
+- Simpler Product Logic
+
+## Atlas
 
 For our purposes, we are using a free M0 shared cluster (a sandbox instance for getting started), with shared RAM and encrypted 512 MB Storage, MongoDB 3.6 and no backup (only available with M10+).
 
@@ -259,3 +269,46 @@ For our purposes, we are using a free M0 shared cluster (a sandbox instance for 
 - Networking performance: Low
 - Max databases: 100
 - Max collections: 500
+
+## EC2
+
+[`forever`](https://github.com/foreverjs/forever) is a simple CLI tool for ensuring that a given script runs continuously.
+
+Common API Use:
+- `forever start ./cortex-api/src/server.js`: Start the server
+- `forever list`: List all apps that are running
+- `forever stop` or `forever stopall`: Stop app(s)
+
+## S3
+
+- (A little outdated) [Guide to Deploying React App to S3](https://www.fullstackreact.com/articles/deploying-a-react-app-to-s3/)
+- Docs: [Configuring a Bucket for Static Hosting](https://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html)
+- `s3cmd` looks like a useful, dedicated CLI
+
+There are several S3 Buckets:
+
+- `cortexdash`: Not currently used for anything, but reserves the name.
+  - Does not store anything.
+  - No public permissions.
+- `cortexdash.com`: Where client side static files are stored and served from.
+  - `http://cortexdash.com.s3-website.us-west-2.amazonaws.com/`
+  - Permissions for public viewing.
+- `www.cortexdash.com`: Subdomain that redirects to `cortexdash.com`
+  - `http://www.cortexdash.com.s3-website.us-west-2.amazonaws.com/`
+  - Does not store anything.
+  - Permissions for public viewing.
+- `api.cortexdash.com`: Subdomain that redirects(?) to the API ec2 instance.
+  - Does not store anything.
+
+
+*Subjects left to cover...*
+- Accounts overview (google acct/domains/analytics, aws, atlas)
+- SSH (ec2-api)
+- GitHub Deployment Management and Keys (ec2-api)
+- Security Groups (ec2-api)
+- Bucket Policy and Permissions Script (s3-dash)
+  - read-only permissions for anonymous users
+  - policy provided in the AWS examples
+- Build and deployment with AWS CLI and/or `s3cmd` (s3-dash)
+- Cloudfront service (s3-dash)
+- Custom error responses (s3-dash)

@@ -7,6 +7,14 @@ exports.getContents = function(req, res) {
   let query = req.query || {};
 
   if (req.query.contentIds) {
+    // If contentIds is an empty array, override default behavior of returning all contents
+    // Instead return empty payload
+    if (req.query.contentIds.length() < 1) {
+      res.json({
+        success: true,
+        payload: {},
+      });
+    }
     query = { _id: { $in: req.query.contentIds } };
   }
 
