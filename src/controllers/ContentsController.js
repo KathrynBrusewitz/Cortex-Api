@@ -10,7 +10,7 @@ exports.getContents = function(req, res) {
     // If contentIds is an empty array, override default behavior of returning all contents
     // Instead return empty payload
     if (req.query.contentIds.length() < 1) {
-      res.json({
+      return res.json({
         success: true,
         payload: {},
       });
@@ -53,6 +53,8 @@ exports.getContent = function(req, res) {
 
 exports.getProtectedContents = function(req, res) {
   const query = req.query || {};
+
+  console.log(req.decoded); // req.decoded.entry = 'dash'
   
   Content.find({ ...query })
   .populate('creators')
