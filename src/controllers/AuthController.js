@@ -3,64 +3,90 @@ var User = require("../models/User");
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-// Authenticate user and get token
-exports.login = function(req, res) {
-  const entry = req.body.entry || null; // expect 'dash' or 'app'
+// Receive a token for API access
+exports.login = function(req, res, next) {
+  if (!req.body.entry) {
+    return next({
+      status: 400,
+      message: "Entry field is missing in login request body."
+    });
+  }
+
+  // Entry must be valid in order to be checked for query edge cases
+  if (!['dash', 'app'].includes(req.body.entry)) {
+    return next({
+      status: 422,
+      message: "Entry field is invalid in login request body."
+    });
+  }
+
+  // If entering from app and has no email or password, return a token for basic API access
+  if (!req.body.email && !req.body.password && req.body.entry === 'app') {
+    const payload = {
+      entry: req.body.entry,
+    };
+    // Create token with payload
+    var token = jwt.sign(payload, req.app.get("tokenSecret"), {
+      expiresIn: 86400 // Expires in 24 hours
+    });
+
+    return res.json({
+      success: true,
+      token,
+      payload,
+    });
+  }
+
+  // Otherwise, proceed login assuming it is for an existing user in userbase
+  if (!req.body.email || !req.body.password) {
+    return next({
+      status: 400,
+      message: "Email or password is missing in login request body."
+    });
+  }
 
   User.findOne({ email: req.body.email },
     function(err, user) {
       if (err) {
-        return res.json({
-          success: false,
-          message: JSON.stringify(err),
-        });
+        return next(err);
       }
       // Email not found
       if (!user) {
-        return res.json({
-          success: false,
-          message: "Authentication failed. Incorrect credentials."
+        return next({
+          status: 404,
+          message: "Login failed. Incorrect credentials."
         });
       }
       // Password mismatch
       bcrypt.compare(req.body.password, user.password, function(err, isMatch) {
         if (err) {
-          return res.status(500).send({
-            success: false,
-            message: JSON.stringify(err),
-          });
+          return next(err);
         }
         if (!isMatch) {
-          return res.json({
-            success: false,
-            message: "Authentication failed. Incorrect password."
+          return next({
+            status: 404,
+            message: "Login failed. Incorrect password."
           });
         }
         // Only admins can enter dash
-        if (entry === 'dash' && user.role !== 'admin') {
-          return res.json({
-            success: false,
-            message: "Authentication failed. You are not an admin."
+        if (req.body.entry === 'dash' && !user.roles.includes('admin')) {
+          return next({
+            status: 404,
+            message: "Login failed. You are not an admin."
           });
         }
-        // Create a token with only our given payload
-        // Don't pass in the entire user, that has the password
+        // Create payload
         const payload = {
           _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          bookmarks: user.bookmarks,
-          notes: user.notes,
-          entry,
+          entry: req.body.entry,
         };
 
+        // Create token with payload
         var token = jwt.sign(payload, req.app.get("tokenSecret"), {
           expiresIn: 86400 // Expires in 24 hours
         });
 
-        // Return the information including token as JSON
-        res.json({
+        return res.json({
           success: true,
           token,
           payload,
@@ -70,46 +96,14 @@ exports.login = function(req, res) {
   ).select("+password");
 };
 
-exports.register = function(req, res) {
-  const { name, email, password, role } = req.body;
-  if (!name || !email || !password || !role) {
-    return res.status(500).send({
-      success: false,
-      message: 'User registration is missing one or more req params: name, email, password, role',
-    });
-  }
-
-  bcrypt.hash(password, saltRounds, function(err, hash) {
-    if (err) {
-      res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
-    } else {
-      const newUser = new User({ name, email, password: hash, role });
-
-      newUser.save(function(err) {
-        if (err) {
-          res.status(500).send({
-            success: false,
-            message: JSON.stringify(err),
-          });
-        } else {
-          res.json({ 
-            success: true,
-          });
-        }
-      });
-    }
-  });
-};
-
-// Returns back user information with a given token
-exports.tokenLogin = function(req, res) {
+// Given a token, returns token and decoded token information
+exports.decode = function(req, res, next) {
+  // Auth Middleware protects this route and provides decoded information in request
+  // so no further action is needed here
   if (!req.token || !req.decoded) {
-    res.json({
-      success: false,
-      message: 'AuthController.tokenLogin requires req.token and req.decoded',
+    return next({
+      status: 400,
+      message: 'Token login request body requires: token, decoded',
     });
   } else {
     res.json({

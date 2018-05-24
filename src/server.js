@@ -3,7 +3,7 @@
 // =======================
 var express = require("express");
 var app = express();
-var cors = require('cors');
+var cors = require("cors");
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var mongoose = require("mongoose");
@@ -20,97 +20,61 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(cors());
-app.options('*', cors());
+app.options("*", cors());
+
+// =======================
+// Middleware
+// =======================
+var verifyToken = require("./middleware/AuthMiddleware");
+var handleError = require("./middleware/ErrorMiddleware");
 
 // =======================
 // Routing
 // =======================
 var api = express.Router();
-var SearchController = require('./controllers/SearchController.js');
-var ContentsController = require('./controllers/ContentsController.js');
-var AuthController = require('./controllers/AuthController.js');
-var EventsController = require('./controllers/EventsController.js');
-var UsersController = require('./controllers/UsersController.js');
-var TermsController = require('./controllers/TermsController.js');
+var AuthController = require("./controllers/AuthController.js");
+var SearchController = require("./controllers/SearchController.js");
+var ContentsController = require("./controllers/ContentsController.js");
+var EventsController = require("./controllers/EventsController.js");
+var UsersController = require("./controllers/UsersController.js");
+var TermsController = require("./controllers/TermsController.js");
 
-app.get("/", function(req, res) {
-  res.send(`Cortex API available on port ${port}`);
-});
+api.post("/login", AuthController.login);
+api.get("/decode", verifyToken, AuthController.decode);
+api.get("/me", verifyToken, UsersController.getMe);
 
-api.post("/authenticate", AuthController.login);
-api.post("/createUser", AuthController.register);
-api.get("/search", SearchController.search);
+api.post("/users", verifyToken, UsersController.postUser);
+api.get("/users", verifyToken, UsersController.getUsers);
+api.get("/users/:id", verifyToken, UsersController.getUser);
+api.put("/users/:id", verifyToken, UsersController.putUser);
+api.delete("/users/:id", verifyToken, UsersController.deleteUser);
+api.post("/users/invite", verifyToken, UsersController.inviteUser);
 
-api.get('/contents', ContentsController.getContents);
-api.get("/contents/:id", ContentsController.getContent);
+api.get("/contents", verifyToken, ContentsController.getContents);
+api.get("/contents/:id", verifyToken, ContentsController.getContent);
+api.post("/contents", verifyToken, ContentsController.postContent);
+api.put("/contents/:id", verifyToken, ContentsController.putContent);
+api.delete("/contents/:id", verifyToken, ContentsController.deleteContent);
 
-api.get("/terms", TermsController.getTerms);
-api.get("/terms/:id", TermsController.getTerm);
+api.get("/terms", verifyToken, TermsController.getTerms);
+api.get("/terms/:id", verifyToken, TermsController.getTerm);
+api.post("/terms", verifyToken, TermsController.postTerm);
+api.put("/terms/:id", verifyToken, TermsController.putTerm);
+api.delete("/terms/:id", verifyToken, TermsController.deleteTerm);
 
-api.get("/events", EventsController.getEvents);
-api.get("/events/:id", EventsController.getEvent);
+api.get("/events", verifyToken, EventsController.getEvents);
+api.get("/events/:id", verifyToken, EventsController.getEvent);
+api.post("/events", verifyToken, EventsController.postEvent);
+api.put("/events/:id", verifyToken, EventsController.putEvent);
+api.delete("/events/:id", verifyToken, EventsController.deleteEvent);
 
-// Token Verification Middleware, protects routes below
-api.use(function(req, res, next) {
-  // Check for token in header or url parameters or post parameters
-  var token = req.body.token || req.query.token || req.headers["x-access-token"];
+api.get("/search", verifyToken, SearchController.search);
 
-  if (token) {
-    // Verify secret and check expiration
-    jwt.verify(token, app.get("tokenSecret"), function(err, decoded) {
-      if (err) {
-        console.log(err);
-        res.json({
-          success: false,
-          message: "Failed to authenticate token."
-        });
-      } else {
-        // Make available to Protected Routes
-        req.token = token;
-        req.decoded = decoded;
-        next();
-      }
-    });
-  } else {
-    res.json({
-      success: false,
-      message: "No token provided."
-    });
-  }
-});
-
-api.get("/", function(req, res) {
-  res.json({ message: "Token verified. Welcome to Cortex API!" });
-});
-
-api.get("/user", AuthController.tokenLogin);
-
-api.get("/users", UsersController.getUsers);
-api.get("/users/:id", UsersController.getUser);
-api.post("/users", UsersController.postUser);
-api.put("/users/:id", UsersController.putUser);
-api.delete("/users/:id", UsersController.deleteUser);
-api.post("/users/invite", UsersController.inviteUser);
-
-api.get("/prot/contents", ContentsController.getProtectedContents);
-api.get("/prot/contents/:id", ContentsController.getProtectedContent);
-api.post("/contents", ContentsController.postContent);
-api.put("/contents/:id", ContentsController.putContent);
-api.delete("/contents/:id", ContentsController.deleteContent);
-
-api.post("/terms", TermsController.postTerm);
-api.put("/terms/:id", TermsController.putTerm);
-api.delete("/terms/:id", TermsController.deleteTerm);
-
-api.post("/events", EventsController.postEvent);
-api.put("/events/:id", EventsController.putEvent);
-api.delete("/events/:id", EventsController.deleteEvent);
-
-// Apply routes with the prefix /api
-app.use("/api", api);
+api.use(handleError);
+app.use("/1.0", api);
 
 // =======================
 // Start the server
 // =======================
 app.listen(port);
-console.log("Cortex API running at http://localhost:" + port);
+console.log("Cortex is running on port " + port);

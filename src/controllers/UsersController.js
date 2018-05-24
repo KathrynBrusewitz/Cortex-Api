@@ -4,6 +4,27 @@ var uuidv4 = require('uuid/v4');
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+exports.getMe = function(req, res, next) {
+  if (!req.decoded._id) {
+    return next({
+      status: 403,
+      message: 'Token is valid, but you are not logged in as a user.'
+    });
+  }
+  User.findById(req.decoded._id)
+  .populate('bookmarks')
+  .populate('notes')
+  .exec(function(err, data) {
+    if (err) {
+      return next(err);
+    }
+    return res.json({
+      success: true,
+      payload: data,
+    });
+  });
+};
+
 exports.getUsers = function(req, res) {
   const query = req.query || {};
 
@@ -44,37 +65,78 @@ exports.getUser = function(req, res) {
   });
 };
 
-exports.postUser = function(req, res) {
-  const { name, email, password, role } = req.body;
-  if (!name || !email || !password || !role) {
-    return res.status(500).send({
-      success: false,
-      message: 'User registration is missing one or more req params: name, email, password, role',
+exports.postUser = function(req, res, next) {
+  if (!req.body.name || !req.body.roles || !req.body.email) {
+    return next({
+      status: 400,
+      message: "Name, roles, or email fields are missing in post body.",
     });
   }
 
-  bcrypt.hash(password, saltRounds, function(err, hash) {
-    if (err) {
-      res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
-    } else {
-      const newUser = new User({ name, email, password: hash, role });
-
-      newUser.save(function(err) {
-        if (err) {
-          res.status(500).send({
-            success: false,
-            message: JSON.stringify(err),
-          });
-        } else {
-          res.json({ 
-            success: true,
-          });
-        }
+  // Make sure roles ends up as an array
+  const roles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+  
+  // Admins and readers must have a password
+  if (roles.includes('admin') || roles.includes('reader')) {
+    if (!req.body.password) {
+      return next({
+        status: 400,
+        message: "Admins and readers require a password to be set.",
       });
     }
+  }
+
+  // Do not add a new user with duplicate email
+  User.findOne({ email: req.body.email }, function(err, foundUser) {
+    if (err) {
+      return next(err);
+    }
+    if (foundUser) {
+      return next({
+        status: 409,
+        message: "Cannot add new user. Email already exists.",
+      });
+    }
+    // If body has a password, hash it, then create user with rest of information
+    if (req.body.password) {
+      return bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+        if (err) {
+          return next(err);
+        }
+        const newUser = new User({
+          ...req.body,
+          roles,
+          password: hash,
+        });
+
+        newUser.save(function(err, savedUser) {
+          if (err) {
+            return next(err);
+          }
+          return res.json({
+            success: true,
+            payload: {
+              _id: savedUser._id,
+            },
+          });
+        });
+      });
+    }
+    // If body does not have a password, create user with rest of information
+    const newUser = new User({
+      ...req.body,
+      roles,
+    });
+
+    newUser.save(function(err, savedUser) {
+      if (err) {
+        return next(err);
+      }
+      return res.json({ 
+        success: true,
+        payload: savedUser,
+      });
+    });
   });
 };
 

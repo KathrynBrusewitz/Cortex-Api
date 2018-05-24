@@ -10,7 +10,5 @@ module.exports = mongoose.model(
     description: { type: String, default: null },
     location: { type: String, default: null },
     url: { type: String, default: null },
-  }, {
-    strict: false,
   })
 );

@@ -5,13 +5,13 @@ let ObjectId = Schema.ObjectId;
 module.exports = mongoose.model(
   'User',
   new Schema({
+    // Required
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, select: false },
-    role: { type: String, enum: ['admin', 'writer', 'artist', 'reader'], required: true },
-    bookmarks: [{ type: ObjectId, ref: 'Content', default: [] }],
+    roles: { type: [String], enum: ['admin', 'writer', 'artist', 'reader'], required: true },
+    email: { type: String, unique: true, required: true },
+    // Optional
+    password: { type: String, select: false, default: null },
+    bookmarks: { type: [ObjectId], ref: 'Content', default: [] },
     notes: [{ body: 'string', term: ObjectId }],
-  }, {
-    strict: false,
   })
 );

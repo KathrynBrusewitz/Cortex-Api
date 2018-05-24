@@ -279,6 +279,30 @@ Common API Use:
 - `forever list`: List all apps that are running
 - `forever stop` or `forever stopall`: Stop app(s)
 
+Multi-Application startup options in `fconfig.js`:
+```
+[
+  {
+    "uid": "cortex-api",
+    "append": true,
+    "watch": true,
+    "script": "server.js",
+    "sourceDir": "/home/ec2-user/cortex-api/src",
+    "args": ["--port", "8080"]
+  },
+  {
+    "uid": "cortex-dashboard",
+    "append": true,
+    "watch": true,
+    "script": "index.html",
+    "sourceDir": "/home/ec2-user/cortex-dashboard",
+    "args": ["--port", "3080"]
+  }
+]
+```
+
+Use `forever start ./fconfig.json` to run script.
+
 ## S3
 
 - (A little outdated) [Guide to Deploying React App to S3](https://www.fullstackreact.com/articles/deploying-a-react-app-to-s3/)
@@ -312,3 +336,69 @@ There are several S3 Buckets:
 - Build and deployment with AWS CLI and/or `s3cmd` (s3-dash)
 - Cloudfront service (s3-dash)
 - Custom error responses (s3-dash)
+
+# DNS Configuration
+
+`A` record maps a name to one or more IP addresses, when the IP are known and stable.<br>
+`A` records must resolve to an IP. 
+
+`CNAME` and `ALIAS` records must point to a name.
+
+Never use a `CNAME` record for your root domain name: `cortexdash.com`.
+
+`CNAME` records map an alias domain name to a canonical (true) domain name.
+
+The following is not possible because canonical domain names cannot be a URL or path. 
+alias: www.cortexdash.com -> canonical: http://www.cortexdash.com.s3-website-us-west-2.amazonaws.com
+alias: cortexdash.com -> canonical: http://cortexdash.com.s3-website-us-west-2.amazonaws.com
+
+
+## Resource records
+All of these records have Name/Type/TTL/Data fields. Please note that the records you configure in Google Domains only work when you're using the Google name servers
+
+https://support.google.com/domains/answer/3290350?authuser=2&hl=en&_ga=2.71707219.190081270.1526650379-1076956000.1526200231
+
+
+
+
+Maybe `CNAME` should be used to redirect `www.cortexdash.com` to `cortexdash.com`?
+
+
+# Deploying Dashboard Build to EC2
+
+Use ssh-agent and ssh-add to load the key into memory:
+```
+> eval $(ssh-agent)
+> ssh-add ~/.ssh/1234-identity
+```
+
+Copy folder over to server: `rsync -az /Users/kathryn/Projects/Cortex-Dashboard/build ec2-user@ec2-34-218-235-4.us-west-2.compute.amazonaws.com:/home/ec2-user`
+
+
+# nginx
+
+```
+server {
+    listen 80;
+    server_name cortexdash.com www.cortexdash.com;
+    location / {
+        proxy_pass http://127.0.0.1:3080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_redirect off;
+     }
+}
+```
+This will have all HTTP web traffic redirected to `port 3080`.
+
+Then on Google Domains, point the DNS to your EC2 public IP `34.218.235.4`:
+
+https://hashnode.com/post/why-is-it-not-recommended-to-serve-static-files-from-nodejs-ciibz8flv01duj3xt4lxuomp3
+express.static or koa.send consume cpu time which isn't available for your main app loop until file(s) are sent. In details - express.send cares too much for dynamic stuff like settings response headers, calculating response status, calculating size of files, finding correct mime types, etc, etc, etc. this computing happens on your main app loop but this main loop should be used as much as possible exclusively for your business computations only.
+
+nginx is much better used for serving statics. because it does some clever tricks that can't be done by node.js, like linking mime types semi statically based on file extensions only. It has pre-baked response headers and response status and it has a template for such such responses. nginx not only spends less time for building response headers and status, but also uses os features when available to speed up even further. Additionally nginx runs on different cpu core(s)/thread(s) other than your node.js app.
+
+node.js hint: you always wanna do as less as possible on your main app loop.
