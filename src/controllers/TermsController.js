@@ -1,16 +1,12 @@
 var Term = require("../models/Term");
 
-exports.getTerms = function(req, res) {
+exports.getTerms = function(req, res, next) {
   const query = req.query || {};
 
   Term.find(query)
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -20,15 +16,17 @@ exports.getTerms = function(req, res) {
   });
 };
 
-exports.getTerm = function(req, res) {
-  Term.findById({ _id: req.params.id }, function(err, data) {
+exports.getTerm = function(req, res, next) {
+  Term.findById(req.params.id, function(err, data) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
+      if (!data) {
+        return next({
+          status: 404,
+          message: 'Term not found.',
+        });
+      }
       res.json({
         success: true,
         payload: data,
@@ -37,44 +35,38 @@ exports.getTerm = function(req, res) {
   });
 };
 
-exports.postTerm = function(req, res) {
+exports.postTerm = function(req, res, next) {
   const newTerm = new Term({ 
     ...req.body,
   });
 
-  newTerm.save(function(err) {
+  newTerm.save(function(err, savedTerm) {
     if (err) {
-      console.log(err);
-      res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({ success: true });
+      res.json({ success: true, payload: savedTerm });
     }
   });
 };
 
-exports.putTerm = function(req, res) {
-  Term.findById({ _id: req.params.id }, function(err, foundTerm) {
+exports.putTerm = function(req, res, next) {
+  Term.findById(req.params.id, function(err, foundTerm) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
+      if (!foundTerm) {
+        return next({
+          status: 404,
+          message: 'Term not found.',
+        });
+      }
       const updatedTerm = {
         ...req.body,
       };
       foundTerm.set(updatedTerm);
       foundTerm.save(function (err, updatedTerm) {
         if (err) {
-          console.log(err);
-          res.json({
-            success: false,
-            message: JSON.stringify(err),
-          });
+          return next(err);
         } else {
           res.json({
             success: true,
@@ -86,17 +78,20 @@ exports.putTerm = function(req, res) {
   });
 };
 
-exports.deleteTerm = function(req, res) {
-  Term.findByIdAndRemove({ _id: req.params.id }, function(err) {
-    if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
+exports.deleteTerm = function(req, res, next) {
+  Term.findByIdAndRemove(req.params.id, function(err, deletedTerm) {
+    if (!deletedTerm) {
+      return next({
+        status: 404,
+        message: 'Term not found.',
       });
+    }
+    if (err) {
+      return next(err);
     } else {
       res.json({
         success: true,
+        payload: deletedTerm,
       });
     }
   });

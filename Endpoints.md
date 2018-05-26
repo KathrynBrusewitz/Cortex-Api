@@ -290,17 +290,47 @@ Request Body: None
 ```
 
 # `GET api.cortexdash.com/1.0/contents`
-Deletes and returns the user in the userbase.
+Returns all contents. Can filter contents in url query. If entry is `app`, only published contents are returned.
 
 ## Request
 Authentication: Required
 
 Request Query:
 ```
-TODO
+type: optional, 'article' or 'podcast' or 'video'
+contentIds: optional
 ```
 
-Request Body: None
+To get all contents based on type of content:
+```
+import queryString from 'query-string';
+
+const filters = { type: 'podcast' }; // get all podcasts
+const query = queryString.stringify(filters);
+
+method: 'get',
+url: `/contents?${query}`
+baseURL,
+```
+
+To get all contents that match an id in an array:
+```
+import queryString from 'query-string';
+
+const filters = { contentIds: ['id_1', 'id_2', 'id_3' ] };
+const query = queryString.stringify(filters);
+
+method: 'get',
+url: `/contents?${query}`
+baseURL,
+```
+
+To get all contents without filtering:
+```
+method: 'get',
+url: '/contents'
+baseURL,
+```
 
 ## Response
 ```
@@ -310,16 +340,70 @@ Request Body: None
 }
 ```
 
+# `GET api.cortexdash.com/1.0/contents/:id`
+Returns a piece of content.
+
+## Request
+Authentication: Required
+
+Request Params: `id` should be the content's `_id`
+
+Request Query: None
+
+Request Body: None
+
+## Response
+```
+{
+  success: true,
+  payload: content object
+}
+```
+
+# `PUT api.cortexdash.com/1.0/contents/:id`
+Updates and returns the content. It only updates the fields that are included in the request body.
+
+## Request
+Authentication: Required
+
+Request Params: `id` should be the user's `_id`
+
+Request Query: None
+
+Request Body:
+```
+{
+  // Required
+  title: { type: String, required: true },
+  state: { type: String, enum: ['published', 'unpublished'], required: true, default: 'unpublished' },
+  type: { type: String, enum: ['article', 'podcast', 'video'], required: true },
+  
+  // Optional
+  creators: [{ type: ObjectId, ref: 'User', default: [] }],
+  updateTime: { type: Date, default: Date.now }, // updateTime == createTime
+  publishTime: { type: Date, default: null },
+  
+  // Content Type Specific Details
+  body: { type: String, default: null },
+  bodySlate: { type: JSON, default: null }, // JSON format for Slate Framework
+  description: { type: String, default: null },
+  duration: { type: Number, default: null }, // milliseconds
+  references: { type: [{ number: Number, text: String }], default: [] },
+  url: { type: String, default: null }, // youtube url, podcast url, etc.
+}
+```
+
+## Response
+```
+{
+  success: true,
+  payload: updated user object
+}
+```
+
 
 # `TODO`
-
-api.post("/users/invite", verifyToken, UsersController.inviteUser);
-
-api.get("/contents/:id", verifyToken, ContentsController.getContent);
-
 api.post("/contents", verifyToken, ContentsController.postContent);
-
-api.put("/contents/:id", verifyToken, ContentsController.putContent);
 
 api.delete("/contents/:id", verifyToken, ContentsController.deleteContent);
 
@@ -333,6 +417,10 @@ api.put("/terms/:id", verifyToken, TermsController.putTerm);
 
 api.delete("/terms/:id", verifyToken, TermsController.deleteTerm);
 
+api.get("/search", verifyToken, SearchController.search);
+
+api.post("/users/invite", verifyToken, UsersController.inviteUser);
+
 api.get("/events", verifyToken, EventsController.getEvents);
 
 api.get("/events/:id", verifyToken, EventsController.getEvent);
@@ -342,5 +430,3 @@ api.post("/events", verifyToken, EventsController.postEvent);
 api.put("/events/:id", verifyToken, EventsController.putEvent);
 
 api.delete("/events/:id", verifyToken, EventsController.deleteEvent);
-
-api.get("/search", verifyToken, SearchController.search);

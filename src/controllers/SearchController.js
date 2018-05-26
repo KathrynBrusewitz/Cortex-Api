@@ -1,9 +1,13 @@
 var Content = require("../models/Content");
 
 // Just search content for now
-exports.search = function(req, res) {
+exports.search = function(req, res, next) {
   const searchRegex = req.query.q || {};
   const options = req.query.options || {};
+
+  if (req.decoded.entry === 'app') {
+    options.state = "published";
+  }
 
   Content.find({
     $or: [
@@ -11,17 +15,12 @@ exports.search = function(req, res) {
       { body: { $regex : new RegExp(searchRegex, "i") } },
       { description: { $regex : new RegExp(searchRegex, "i") } }
     ],
-    state: "published",
     ...options,
   })
-  .populate('creators')
+  .deepPopulate('creators artists')
   .exec(function(err, data) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,

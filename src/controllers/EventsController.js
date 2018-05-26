@@ -1,15 +1,12 @@
 var Event = require("../models/Event");
 
-exports.getEvents = function(req, res) {
+exports.getEvents = function(req, res, next) {
   const query = req.query || {};
 
   Event.find({ ...query })
   .exec(function(err, data) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -19,13 +16,10 @@ exports.getEvents = function(req, res) {
   });
 };
 
-exports.getEvent = function(req, res) {
+exports.getEvent = function(req, res, next) {
   Event.findById({ _id: req.params.id }, function(err, data) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -35,41 +29,38 @@ exports.getEvent = function(req, res) {
   });
 };
 
-exports.postEvent = function(req, res) {
+exports.postEvent = function(req, res, next) {
   const newEvent = new Event({ 
     ...req.body,
   });
 
-  newEvent.save(function(err) {
+  newEvent.save(function(err, savedEvent) {
     if (err) {
-      res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({ success: true });
+      res.json({ success: true, payload: savedEvent });
     }
   });
 };
 
-exports.putEvent = function(req, res) {
+exports.putEvent = function(req, res, next) {
   Event.findById({ _id: req.params.id }, function(err, foundEvent) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
+      if (!foundEvent) {
+        return next({
+          status: 404,
+          message: 'Event not found.',
+        });
+      }
       const updatedEvent = {
         ...req.body,
       };
       foundEvent.set(updatedEvent);
       foundEvent.save(function (err, updatedEvent) {
         if (err) {
-          res.json({
-            success: false,
-            message: JSON.stringify(err),
-          });
+          return next(err);
         } else {
           res.json({
             success: true,
@@ -81,16 +72,20 @@ exports.putEvent = function(req, res) {
   });
 };
 
-exports.deleteEvent = function(req, res) {
-  Event.findByIdAndRemove({ _id: req.params.id }, function(err) {
+exports.deleteEvent = function(req, res, next) {
+  Event.findByIdAndRemove({ _id: req.params.id }, function(err, deletedEvent) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
+      if (!deletedEvent) {
+        return next({
+          status: 404,
+          message: 'Event not found.',
+        });
+      }
       res.json({
         success: true,
+        payload: deletedEvent,
       });
     }
   });

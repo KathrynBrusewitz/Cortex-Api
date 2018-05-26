@@ -27,7 +27,6 @@ app.options("*", cors());
 // =======================
 var verifyToken = require("./middleware/AuthMiddleware");
 var handleError = require("./middleware/ErrorMiddleware");
-var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 // =======================
 // Routing

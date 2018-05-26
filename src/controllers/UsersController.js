@@ -14,7 +14,7 @@ exports.getMe = function(req, res, next) {
   }
   User.findById(req.decoded._id)
   .populate('bookmarks')
-  .populate('notes')
+  .populate('notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -43,7 +43,7 @@ exports.getUsers = function(req, res, next) {
 
   User.find(query)
   .populate('bookmarks')
-  .populate('notes')
+  .populate('notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -58,14 +58,15 @@ exports.getUsers = function(req, res, next) {
 
 exports.getUser = function(req, res, next) {
   User.findById(req.params.id)
-  .plugin(deepPopulate, 'bookmarks notes.term')
-  .exec(function(err, data) {
+  .populate('bookmarks')
+  .populate('notes.term')
+  .exec(function(err, foundUser) {
     if (err) {
       return next(err);
     } else {
       return res.json({
         success: true,
-        payload: data,
+        payload: foundUser,
       });
     }
   });

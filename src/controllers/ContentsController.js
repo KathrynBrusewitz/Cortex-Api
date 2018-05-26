@@ -1,6 +1,6 @@
 var Content = require("../models/Content");
 
-exports.getContents = function(req, res) {
+exports.getContents = function(req, res, next) {
   // Build query:
   //   If req.query has contentIds, then build query just with that
   //   If not, then build query as usual
@@ -18,52 +18,16 @@ exports.getContents = function(req, res) {
     query = { _id: { $in: req.query.contentIds } };
   }
 
-  Content.find({ ...query, state: "published" })
-  .populate('creators')
-  .exec(function(err, data) {
-    if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-};
+  // App can only get published content
+  if (req.decoded.entry === 'app') {
+    query.state = 'published';
+  }
 
-exports.getContent = function(req, res) {
-  Content.findById({ _id: req.params.id, state: "published" }, function(err, data) {
-    if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
-    } else {
-      res.json({
-        success: true,
-        payload: data,
-      });
-    }
-  });
-};
-
-exports.getProtectedContents = function(req, res) {
-  const query = req.query || {};
-
-  console.log(req.decoded); // req.decoded.entry = 'dash'
-  
   Content.find({ ...query })
-  .populate('creators')
+  .deepPopulate('creators artists')
   .exec(function(err, data) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -73,13 +37,18 @@ exports.getProtectedContents = function(req, res) {
   });
 };
 
-exports.getProtectedContent = function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, data) {
+exports.getContent = function(req, res, next) {
+  Content.findById(req.params.id)
+  .deepPopulate('creators artists')
+  .exec(function(err, data) {
+    if (!data) {
+      return next({
+        status: 404,
+        message: 'Content not found.',
+      });
+    }
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -89,35 +58,40 @@ exports.getProtectedContent = function(req, res) {
   });
 };
 
-exports.postContent = function(req, res) {
+exports.postContent = function(req, res, next) {
   const newContent = new Content({ 
     ...req.body,
     publishTime: req.body.state === "published" ? new Date() : null,
   });
 
-  newContent.save(function(err) {
+  newContent.save(function(err, savedContent) {
     if (err) {
-      res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({ success: true });
+      res.json({
+        success: true,
+        payload: savedContent,
+      });
     }
   });
 };
 
-exports.putContent = function(req, res) {
-  Content.findById({ _id: req.params.id }, function(err, foundContent) {
+exports.putContent = function(req, res, next) {
+  Content.findById(req.params.id, function(err, foundContent) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
+      if (!foundContent) {
+        return next({
+          status: 404,
+          message: 'Content not found.',
+        });
+      }
       // How should publish time be updated?
       let newPublishTime = req.body.state === "unpublished" ? null : new Date();
-      newPublishTime = foundContent.state === req.body.state && req.body.state === "published"
+
+      newPublishTime = (foundContent.state === req.body.state 
+        && req.body.state === "published")
         ? foundContent.publishTime 
         : newPublishTime;
 
@@ -127,16 +101,13 @@ exports.putContent = function(req, res) {
         publishTime: newPublishTime,
       };
       foundContent.set(updatedContent);
-      foundContent.save(function (err, updatedContent) {
+      foundContent.save(function (err, savedContent) {
         if (err) {
-          res.json({
-            success: false,
-            message: JSON.stringify(err),
-          });
+          return next(err);
         } else {
           res.json({
             success: true,
-            payload: updatedContent,
+            payload: savedContent,
           });
         }
       });
@@ -144,16 +115,26 @@ exports.putContent = function(req, res) {
   });
 };
 
-exports.deleteContent = function(req, res) {
-  Content.findByIdAndRemove({ _id: req.params.id }, function(err) {
-    if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
+exports.deleteContent = function(req, res, next) {
+  if (!req.decoded.entry === 'dash') {
+    return next({
+      status: 403,
+      message: 'Token is valid, but you need to be logged into the dash to delete.'
+    });
+  }
+  Content.findByIdAndRemove(req.params.id, function(err, deletedContent) {
+    if (!deletedContent) {
+      return next({
+        status: 404,
+        message: 'Content not found.',
       });
+    }
+    if (err) {
+      return next(err);
     } else {
       res.json({
         success: true,
+        payload: deletedContent,
       });
     }
   });
