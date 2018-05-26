@@ -219,17 +219,20 @@ exports.deleteUser = function(req, res, next) {
 };
 
 exports.inviteUser = function(req, res, next) {
-  if (!req.body.role || !req.body.email) {
+  if (!req.body.roles || !req.body.email) {
     return next({
       status: 400,
-      message: 'UsersController.inviteUser requires one or more request params: role, email',
+      message: 'Invite user requires email and roles.',
     });
   }
+
+  // Make sure roles ends up as an array
+  const roles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
 
   const newCode = new Code({ 
     code: uuidv4(), // Generate and return a RFC4122 v4 UUID
     type: 'invite',
-    role: req.body.role,
+    roles,
     email: req.body.email,
   });
 
@@ -245,6 +248,36 @@ exports.inviteUser = function(req, res, next) {
     return res.json({
       success: true,
       message: 'Invite code created. TODO: Send email.',
+    });
+  });
+};
+
+exports.resetPassword = function(req, res, next) {
+  if (!req.body.email) {
+    return next({
+      status: 400,
+      message: 'Reset password requires an email.',
+    });
+  }
+
+  const newCode = new Code({ 
+    code: uuidv4(), // Generate and return a RFC4122 v4 UUID
+    type: 'reset',
+    email: req.body.email,
+  });
+
+  newCode.save(function(err, inviteCode) {
+    if (err) {
+      return next(err);
+    }
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const url = `${baseUrl}/invite?code=`;
+
+    // TODO: Use Amazon SES to build a template and send email
+
+    return res.json({
+      success: true,
+      message: 'Reset password code created. TODO: Send email.',
     });
   });
 };

@@ -79,6 +79,8 @@ exports.login = function(req, res, next) {
         const payload = {
           _id: user._id,
           entry: req.body.entry,
+          name: user.name,
+          roles: user.roles,
         };
 
         // Create token with payload

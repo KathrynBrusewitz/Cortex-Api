@@ -69,7 +69,7 @@ Receive a token and related payload. This token is required for access to all ot
 
 A token for basic API access is returned if entry is 'app' and no email or password is given. This is useful for requesting content inside the app without needing to login as a user.
 
-It is on purpose that the token and payload contain the least amount of information necessary. Although tokens are signed, they are not encrypted. Anyone that can obtain the token through unauthorized ways can easily decode it and see any sensitive information. Therefore, they only contain the user `_id` so that you have to query `users/:id`, a protected route that requires authentication.
+It is on purpose that the token and payload contain the least amount of information necessary. Although tokens are signed, they are not encrypted. Anyone that can obtain the token through unauthorized ways can easily decode it and see any sensitive information. Therefore, in order to get more information about the user, you need to use the user `_id` contained in the payload/token in your query to `users/:id`, a protected route that requires authentication.
 
 ## Request
 Authentication: Not Required
@@ -104,7 +104,9 @@ When logging in as reader for (app) access:
   "token": string,
   "payload": {
     "_id": string,
-    "entry": "app"
+    "entry": "app",
+    "name": string,
+    "roles": [string]
   }
 }
 ```
@@ -116,7 +118,9 @@ When logging in as admin for (dash) access:
   "token": string,
   "payload": {
     "_id": string,
-    "entry": "dash"
+    "entry": "dash",
+    "name": string,
+    "roles": [string]
   }
 }
 ```
@@ -401,8 +405,51 @@ Request Body:
 }
 ```
 
+# `POST api.cortexdash.com/1.0/users/invite`
+Generates a RFC4122 v4 UUID and stores in the database with email and roles. Will soon be used by Amazon's SES to build a template and send an email.
 
-# `TODO`
+## Request
+Authentication: Required
+
+Request Body:
+```
+{
+  email: string, required
+  roles: [string] or string, required
+}
+```
+
+## Response
+```
+{
+  success: true,
+  message: 'Invite code created. TODO: Send email.',
+}
+```
+
+# `POST api.cortexdash.com/1.0/users/reset`
+Generates a RFC4122 v4 UUID and stores in the database with email. Will soon be used by Amazon's SES to build a template and send an email.
+
+## Request
+Authentication: Required
+
+Request Body:
+```
+{
+  email: string, required
+}
+```
+
+## Response
+```
+{
+  success: true,
+  message: 'Reset password code created. TODO: Send email.',
+}
+```
+
+
+# `TODO: PostMan Testing`
 api.post("/contents", verifyToken, ContentsController.postContent);
 
 api.delete("/contents/:id", verifyToken, ContentsController.deleteContent);
@@ -420,6 +467,8 @@ api.delete("/terms/:id", verifyToken, TermsController.deleteTerm);
 api.get("/search", verifyToken, SearchController.search);
 
 api.post("/users/invite", verifyToken, UsersController.inviteUser);
+
+api.post("/users/reset", verifyToken, UsersController.resetPassword);
 
 api.get("/events", verifyToken, EventsController.getEvents);
 

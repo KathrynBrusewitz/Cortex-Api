@@ -10,6 +10,6 @@ module.exports = mongoose.model(
     type: { type: String, enum: ['invite', 'reset'], required: true },
     email: { type: String, required: true },
     // Specific for Invite Codes
-    roles: [{ type: String, enum: ['admin', 'writer', 'artist', 'reader'] }],
+    roles: { type: [String], enum: ['admin', 'writer', 'artist', 'reader'] },
   })
 );

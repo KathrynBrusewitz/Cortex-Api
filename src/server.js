@@ -49,6 +49,7 @@ api.get("/users/:id", verifyToken, UsersController.getUser);
 api.put("/users/:id", verifyToken, UsersController.putUser);
 api.delete("/users/:id", verifyToken, UsersController.deleteUser);
 api.post("/users/invite", verifyToken, UsersController.inviteUser);
+api.post("/users/reset", verifyToken, UsersController.resetPassword);
 
 api.get("/contents", verifyToken, ContentsController.getContents);
 api.get("/contents/:id", verifyToken, ContentsController.getContent);
