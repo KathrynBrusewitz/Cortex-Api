@@ -11,8 +11,8 @@ module.exports = mongoose.model(
     email: { type: String, unique: true, required: true },
     // Optional
     password: { type: String, select: false, default: null },
-    bookmarks: { type: [ObjectId], ref: 'Content', default: [] },
-    notes: [{ body: 'string', term: ObjectId }],
+    bookmarks: [{ type: ObjectId, ref: 'Content' }],
+    notes: [{ body: 'string', term: { type: ObjectId, ref: 'Term' } }],
     bio: { type: String, default: '' },
   })
 );

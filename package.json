@@ -4,8 +4,8 @@
   "private": true,
   "author": {
     "name": "Kathryn Brusewitz",
-		"email": "kathryn.brusewitz@gmail.com",
-		"url": "http://kathryn.vc/"
+    "email": "kathryn.brusewitz@gmail.com",
+    "url": "http://kathryn.vc/"
   },
   "license": "MIT",
   "description": "Cortex API",
@@ -25,6 +25,7 @@
     "express": "^4.16.2",
     "jsonwebtoken": "^8.1.1",
     "mongoose": "^5.0.6",
+    "mongoose-deep-populate": "^3.1.1",
     "morgan": "^1.9.0",
     "uuid": "^3.2.1"
   }

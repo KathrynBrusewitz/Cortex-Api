@@ -1,4 +1,5 @@
 var User = require("../models/User");
+var Term = require("../models/Term");
 var Code = require("../models/Code");
 var uuidv4 = require('uuid/v4');
 var bcrypt = require('bcrypt');
@@ -57,8 +58,7 @@ exports.getUsers = function(req, res, next) {
 
 exports.getUser = function(req, res, next) {
   User.findById(req.params.id)
-  .populate('bookmarks')
-  .populate('notes')
+  .plugin(deepPopulate, 'bookmarks notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
