@@ -25,7 +25,19 @@ exports.getMe = function(req, res, next) {
   });
 };
 
-exports.getUsers = function(req, res) {
+exports.getUsers = function(req, res, next) {
+  if (!req.decoded._id) {
+    return next({
+      status: 403,
+      message: 'Token is valid, but you are not logged in as a user.'
+    });
+  }
+  if (req.decoded.entry !== 'dash') {
+    return next({
+      status: 403,
+      message: 'Token is valid, but only dashboard entry can get all users.'
+    });
+  }
   const query = req.query || {};
 
   User.find(query)
@@ -33,12 +45,9 @@ exports.getUsers = function(req, res) {
   .populate('notes')
   .exec(function(err, data) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({
+      return res.json({
         success: true,
         payload: data,
       });
@@ -46,18 +55,15 @@ exports.getUsers = function(req, res) {
   });
 };
 
-exports.getUser = function(req, res) {
-  User.findById({ _id: req.params.id })
+exports.getUser = function(req, res, next) {
+  User.findById(req.params.id)
   .populate('bookmarks')
   .populate('notes')
   .exec(function(err, data) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({
+      return res.json({
         success: true,
         payload: data,
       });
@@ -75,6 +81,11 @@ exports.postUser = function(req, res, next) {
 
   // Make sure roles ends up as an array
   const roles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
+
+  // If entry is app, make sure that one of the roles is `reader`
+  if (req.decoded.entry === 'app' && !roles.includes('reader')) {
+    roles.push('reader');
+  }
   
   // Admins and readers must have a password
   if (roles.includes('admin') || roles.includes('reader')) {
@@ -140,27 +151,22 @@ exports.postUser = function(req, res, next) {
   });
 };
 
-exports.putUser = function(req, res) {
-  User.findById({ _id: req.params.id }, function(err, foundUser) {
+exports.putUser = function(req, res, next) {
+  User.findById(req.params.id, function(err, foundUser) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
       if (!foundUser) {
-        return res.json({
-          success: false,
+        return next({
+          status: 404,
           message: 'User not found.',
         });
       }
+      // If password is being updated, hash the new password
       if (req.body.password) {
         bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
           if (err) {
-            return res.status(500).send({
-              success: false,
-              message: JSON.stringify(err),
-            });
+            return next(err);
           }
           const updatedUser = {
             ...req.body,
@@ -169,12 +175,9 @@ exports.putUser = function(req, res) {
           foundUser.set(updatedUser);
           foundUser.save(function (err, savedUser) {
             if (err) {
-              res.json({
-                success: false,
-                message: JSON.stringify(err),
-              });
+              return next(err);
             } else {
-              res.json({
+              return res.json({
                 success: true,
                 payload: savedUser,
               });
@@ -188,12 +191,9 @@ exports.putUser = function(req, res) {
         foundUser.set(updatedUser);
         foundUser.save(function (err, savedUser) {
           if (err) {
-            res.json({
-              success: false,
-              message: JSON.stringify(err),
-            });
+            return next(err);
           } else {
-            res.json({
+            return res.json({
               success: true,
               payload: savedUser,
             });
@@ -204,25 +204,23 @@ exports.putUser = function(req, res) {
   });
 };
 
-exports.deleteUser = function(req, res) {
-  User.findByIdAndRemove({ _id: req.params.id }, function(err) {
+exports.deleteUser = function(req, res, next) {
+  User.findByIdAndRemove(req.params.id, function(err, deletedUser) {
     if (err) {
-      res.json({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     } else {
-      res.json({
+      return res.json({
         success: true,
+        payload: deletedUser,
       });
     }
   });
 };
 
-exports.inviteUser = function(req, res) {
+exports.inviteUser = function(req, res, next) {
   if (!req.body.role || !req.body.email) {
-    return res.json({
-      success: false,
+    return next({
+      status: 400,
       message: 'UsersController.inviteUser requires one or more request params: role, email',
     });
   }
@@ -236,10 +234,7 @@ exports.inviteUser = function(req, res) {
 
   newCode.save(function(err, inviteCode) {
     if (err) {
-      return res.status(500).send({
-        success: false,
-        message: JSON.stringify(err),
-      });
+      return next(err);
     }
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const url = `${baseUrl}/invite?code=`;

@@ -18,7 +18,7 @@ module.exports = mongoose.model(
     bodySlate: { type: JSON, default: null }, // JSON format for Slate Framework
     description: { type: String, default: null },
     duration: { type: Number, default: null }, // milliseconds
-    references: { type: String, default: null },
+    references: { type: [{ number: Number, text: String }], default: null },
     url: { type: String, default: null }, // youtube url, podcast url, etc.
   })
 );

@@ -402,3 +402,34 @@ express.static or koa.send consume cpu time which isn't available for your main 
 nginx is much better used for serving statics. because it does some clever tricks that can't be done by node.js, like linking mime types semi statically based on file extensions only. It has pre-baked response headers and response status and it has a template for such such responses. nginx not only spends less time for building response headers and status, but also uses os features when available to speed up even further. Additionally nginx runs on different cpu core(s)/thread(s) other than your node.js app.
 
 node.js hint: you always wanna do as less as possible on your main app loop.
+
+# Mongo Models and Schema
+
+## `default` in schema
+
+The `default` attribute is added to the query if that field does not exist in the database. For example,
+
+User Model
+```
+module.exports = mongoose.model(
+  'User',
+  new Schema({
+    name: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
+    password: { type: String, select: false, default: null },
+    bio: { type: String, default: '' },
+  })
+);
+```
+
+If the `bio` field is empty for a user in the database, querying the user will receive the `bio` field filled in from the `default` attribute - in this case, an empty string.
+
+## Save one or more documents to database
+
+(`Model.create()`)[http://mongoosejs.com/docs/api.html#create_create] is a shortcut for saving one or more documents to the database.` MyModel.create(docs)` does new `MyModel(doc).save()` for every doc in docs.
+
+This is useful for bulk uploading of terms or bulk updating content.
+
+Related Model Methods:
+- `Model.bulkWrite()`
+- `Model.deleteMany()`

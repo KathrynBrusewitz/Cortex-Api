@@ -69,6 +69,8 @@ Receive a token and related payload. This token is required for access to all ot
 
 A token for basic API access is returned if entry is 'app' and no email or password is given. This is useful for requesting content inside the app without needing to login as a user.
 
+It is on purpose that the token and payload contain the least amount of information necessary. Although tokens are signed, they are not encrypted. Anyone that can obtain the token through unauthorized ways can easily decode it and see any sensitive information. Therefore, they only contain the user `_id` so that you have to query `users/:id`, a protected route that requires authentication.
+
 ## Request
 Authentication: Not Required
 
@@ -84,28 +86,37 @@ Request Body:
 ```
 
 ## Response
-For basic access:
+When logging in for basic (read-only) access:
 ```
 {
-  success: boolean,
-  token: string,
-  payload: {
-    entry: string,
+  "success": true,
+  "token": string,
+  "payload": {
+    "entry": "app"
   }
 }
 ```
 
-For user access:
+When logging in as reader for (app) access:
 ```
 {
-  success: boolean,
-  token: string,
-  payload: {
-    _id: string,
-    name: string,
-    email: string,
-    roles: [string],
-    entry: string,
+  "success": true,
+  "token": string,
+  "payload": {
+    "_id": string,
+    "entry": "app"
+  }
+}
+```
+
+When logging in as admin for (dash) access:
+```
+{
+  "success": true,
+  "token": string,
+  "payload": {
+    "_id": string,
+    "entry": "dash"
   }
 }
 ```
@@ -126,7 +137,7 @@ Request Body: None
 ## Response
 ```
 {
-  success: boolean,
+  success: true,
   token: string,
   payload: decoded object,
 }
@@ -137,6 +148,8 @@ Request Body: None
 Add a new user to the userbase. Name, roles, and email are required. All other information are optional. 
 
 An admin can add a new user with their name, role(s), and email. This may be a writer or artist who cannot or will not provide a password. If the writer or artist would like to have an account to login with, 1) the new user can request a password reset for their email, and then 2) follow the instructions emailed to them to set a password.
+
+If you're coming from the app, you will automatically be assigned the `reader` role if it's not specified.
 
 ## Request
 Authentication: Required
@@ -152,14 +165,14 @@ Request Body:
   password: string, optional, default null
   bookmarks: [string], optional, default []
   notes: [object], optional, default []
+  bio: string, optional, default ''
 }
 ```
 
 ## Response
-
 ```
 {
-  success: boolean,
+  success: true,
   payload: {
     _id: string
   }
@@ -170,7 +183,7 @@ Request Body:
 Returns information about the current logged-in user. Having this accessible at the root level makes accessing deeper levels of your personal information more consistent.
 
 ## Request
-Authentication: Required
+Authentication: Required. You must be logged in as a user.
 
 Request Query: None
 
@@ -179,13 +192,105 @@ Request Body: None
 ## Response
 ```
 {
-  success: boolean,
+  success: true,
   payload: user object,
 }
 ```
 
 # `GET api.cortexdash.com/1.0/users`
 Returns users from userbase.
+
+## Request
+Authentication: Required.
+
+Request Query:
+```
+TODO
+```
+
+Request Body: None
+
+## Response
+```
+{
+  success: true,
+  payload: array of users,
+}
+```
+
+# `GET api.cortexdash.com/1.0/users/:id`
+Returns the user from userbase.
+
+## Request
+Authentication: Required
+
+Request Params: `id` should be the user's `_id`
+
+Request Query: None
+
+Request Body: None
+
+## Response
+```
+{
+  success: true,
+  payload: user object,
+}
+```
+
+# `PUT api.cortexdash.com/1.0/users/:id`
+Updates and returns the user in the userbase. It only updates the fields that are included in the request body.
+
+## Request
+Authentication: Required
+
+Request Params: `id` should be the user's `_id`
+
+Request Query: None
+
+Request Body:
+```
+{
+  name: string, optional
+  roles: [string], optional
+  email: string, optional
+  password: string, optional
+  bookmarks: [string], optional
+  notes: [object], optional
+  bio: string, optional
+}
+```
+
+## Response
+```
+{
+  success: true,
+  payload: updated user object
+}
+```
+
+# `DELETE api.cortexdash.com/1.0/users/:id`
+Deletes and returns the user in the userbase.
+
+## Request
+Authentication: Required
+
+Request Params: `id` should be the user's `_id`
+
+Request Query: None
+
+Request Body: None
+
+## Response
+```
+{
+  success: true,
+  payload: deleted user object
+}
+```
+
+# `GET api.cortexdash.com/1.0/contents`
+Deletes and returns the user in the userbase.
 
 ## Request
 Authentication: Required
@@ -200,25 +305,15 @@ Request Body: None
 ## Response
 ```
 {
-  success: boolean,
-  payload: array of users,
+  success: true,
+  payload: array of content objects
 }
 ```
 
 
-
-
 # `TODO`
 
-api.get("/users/:id", verifyToken, UsersController.getUser);
-
-api.put("/users/:id", verifyToken, UsersController.putUser);
-
-api.delete("/users/:id", verifyToken, UsersController.deleteUser);
-
 api.post("/users/invite", verifyToken, UsersController.inviteUser);
-
-api.get("/contents", verifyToken, ContentsController.getContents);
 
 api.get("/contents/:id", verifyToken, ContentsController.getContent);
 

@@ -13,5 +13,6 @@ module.exports = mongoose.model(
     password: { type: String, select: false, default: null },
     bookmarks: { type: [ObjectId], ref: 'Content', default: [] },
     notes: [{ body: 'string', term: ObjectId }],
+    bio: { type: String, default: '' },
   })
 );

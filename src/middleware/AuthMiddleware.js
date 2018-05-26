@@ -10,6 +10,11 @@ module.exports = function(req, res, next) {
     jwt.verify(token, req.app.get("tokenSecret"), function(err, decoded) {
       if (err) {
         return next(err);
+      } else if (!['dash', 'app'].includes(decoded.entry)) {
+        return next({
+          status: 400,
+          message: "Entry field is invalid in token.",
+        })
       } else {
         // Make available to protected routes
         req.token = token;
