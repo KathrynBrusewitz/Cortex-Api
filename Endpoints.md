@@ -208,11 +208,16 @@ Returns users from userbase.
 Authentication: Required.
 
 Request Query:
-```
-TODO
-```
+- `users?` will get all users
+- `users?roles%5B0%5D=reader&roles%5B1%5D=artist` will get all users whose roles include `reader` or `artist`
 
-Request Body: None
+```
+{
+  q: optional, a UTF-8 URL-encoded search query
+  roles: optional, 
+  contentIds: optional,
+}
+```
 
 ## Response
 ```
@@ -304,6 +309,10 @@ Request Query:
 type: optional, 'article' or 'podcast' or 'video'
 contentIds: optional
 ```
+
+- `contents?` will get all contents
+- `contents?type=podcast` will get all contents with type `podcast`
+- `contents?type=article&type=video` will get all contents with type `article` or `video`
 
 To get all contents based on type of content:
 ```
@@ -431,7 +440,7 @@ Request Body:
 Generates a RFC4122 v4 UUID and stores in the database with email. Will soon be used by Amazon's SES to build a template and send an email.
 
 ## Request
-Authentication: Required
+Authentication: Not required
 
 Request Body:
 ```
@@ -448,21 +457,28 @@ Request Body:
 }
 ```
 
+# `POST api.cortexdash.com/1.0/contents`
+TODO
+
+# `DELETE api.cortexdash.com/1.0/contents/:id`
+TODO
+
+# `GET api.cortexdash.com/1.0/terms`
+TODO
+
+# `GET api.cortexdash.com/1.0/terms/:id`
+TODO
+
+# `POST api.cortexdash.com/1.0/terms`
+TODO
+
+# `PUT api.cortexdash.com/1.0/terms/:id`
+TODO
+
+# `DELETE api.cortexdash.com/1.0/terms/:id`
+TODO
 
 # `TODO: PostMan Testing`
-api.post("/contents", verifyToken, ContentsController.postContent);
-
-api.delete("/contents/:id", verifyToken, ContentsController.deleteContent);
-
-api.get("/terms", verifyToken, TermsController.getTerms);
-
-api.get("/terms/:id", verifyToken, TermsController.getTerm);
-
-api.post("/terms", verifyToken, TermsController.postTerm);
-
-api.put("/terms/:id", verifyToken, TermsController.putTerm);
-
-api.delete("/terms/:id", verifyToken, TermsController.deleteTerm);
 
 api.get("/search", verifyToken, SearchController.search);
 

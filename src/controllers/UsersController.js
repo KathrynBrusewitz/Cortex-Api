@@ -39,7 +39,14 @@ exports.getUsers = function(req, res, next) {
       message: 'Token is valid, but only dashboard entry can get all users.'
     });
   }
-  const query = req.query || {};
+  let query = req.query || {};
+
+  // Convert roles query from array to object
+  if (query.roles) {
+    // Make sure roles is an array first
+    query.roles = Array.isArray(query.roles) ? query.roles : [query.roles];
+    query.roles = { $in : query.roles };
+  }
 
   User.find(query)
   .populate('bookmarks')

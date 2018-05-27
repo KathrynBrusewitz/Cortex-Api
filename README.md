@@ -62,7 +62,7 @@ A quick explanation of the dependencies:<br>
 `jsonwebtoken` is how we create, sign, and verify JSON Web Tokens<br>
 `cors` provides Connect/Express middleware that can enable CORS with various options.<br>
 
-### `app.use(bodyParser.urlencoded({ extended: false }));`
+### `app.use(bodyParser.urlencoded({ extended: true }));`
 
 The `extended` option determines which parsing library to use. If extended is true, express will use `qs`. If false, express will use `querystring`. More information available [here](https://stackoverflow.com/questions/29960764/what-does-extended-mean-in-express-4-0).
 

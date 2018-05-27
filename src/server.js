@@ -16,7 +16,7 @@ var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 app.use(cors());
@@ -40,6 +40,7 @@ var UsersController = require("./controllers/UsersController.js");
 var TermsController = require("./controllers/TermsController.js");
 
 api.post("/login", AuthController.login);
+api.post("/users/reset", UsersController.resetPassword);
 api.get("/decode", verifyToken, AuthController.decode);
 api.get("/me", verifyToken, UsersController.getMe);
 
@@ -49,7 +50,6 @@ api.get("/users/:id", verifyToken, UsersController.getUser);
 api.put("/users/:id", verifyToken, UsersController.putUser);
 api.delete("/users/:id", verifyToken, UsersController.deleteUser);
 api.post("/users/invite", verifyToken, UsersController.inviteUser);
-api.post("/users/reset", verifyToken, UsersController.resetPassword);
 
 api.get("/contents", verifyToken, ContentsController.getContents);
 api.get("/contents/:id", verifyToken, ContentsController.getContent);

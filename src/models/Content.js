@@ -24,10 +24,10 @@ module.exports = mongoose.model(
   }).plugin(deepPopulate, {
     populate: {
       'creators': {
-        select: 'name',
+        select: 'name roles',
       },
       'artists': {
-        select: 'name',
+        select: 'name roles',
       }
     }
   })

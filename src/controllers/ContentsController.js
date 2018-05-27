@@ -1,21 +1,25 @@
 var Content = require("../models/Content");
 
 exports.getContents = function(req, res, next) {
-  // Build query:
-  //   If req.query has contentIds, then build query just with that
-  //   If not, then build query as usual
   let query = req.query || {};
 
+  // Can filter contents by id
   if (req.query.contentIds) {
-    // If contentIds is an empty array, override default behavior of returning all contents
-    // Instead return empty payload
-    if (req.query.contentIds.length() < 1) {
+    // If contentIds is empty, override default behavior of returning all contents
+    if (query.contentIds.length() < 1) {
       return res.json({
         success: true,
         payload: {},
       });
     }
-    query = { _id: { $in: req.query.contentIds } };
+    query._id = { $in: req.query.contentIds };
+  }
+
+  // Can filter contents by type
+  if (req.query.type) {
+    // Make sure type is an array first
+    req.query.type = Array.isArray(req.query.type) ? req.query.type : [req.query.type];
+    query.type = { $in: req.query.type };
   }
 
   // App can only get published content
@@ -23,7 +27,7 @@ exports.getContents = function(req, res, next) {
     query.state = 'published';
   }
 
-  Content.find({ ...query })
+  Content.find(query)
   .deepPopulate('creators artists')
   .exec(function(err, data) {
     if (err) {
