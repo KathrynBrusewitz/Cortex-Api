@@ -12,6 +12,7 @@ module.exports = mongoose.model(
     type: { type: String, enum: ['article', 'podcast', 'video'], required: true },
     // Optional
     creators: [{ type: ObjectId, ref: 'User', default: [] }],
+    artists: [{ type: ObjectId, ref: 'User', default: [] }],
     updateTime: { type: Date, default: Date.now }, // updateTime == createTime
     publishTime: { type: Date, default: null },
     // Content Type Specific Details
