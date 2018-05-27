@@ -1,12 +1,12 @@
 var Content = require("../models/Content");
 
 exports.getContents = function(req, res, next) {
-  let query = req.query || {};
+  let query = req.query.q || {};
 
   // Can filter contents by id
   if (req.query.contentIds) {
     // If contentIds is empty, override default behavior of returning all contents
-    if (query.contentIds.length() < 1) {
+    if (req.query.contentIds.length() < 1) {
       return res.json({
         success: true,
         payload: {},

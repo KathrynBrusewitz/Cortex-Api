@@ -1,7 +1,4 @@
 var User = require("../models/User");
-var Term = require("../models/Term");
-var Code = require("../models/Code");
-var uuidv4 = require('uuid/v4');
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -39,13 +36,14 @@ exports.getUsers = function(req, res, next) {
       message: 'Token is valid, but only dashboard entry can get all users.'
     });
   }
-  let query = req.query || {};
+
+  let query = req.query.q || {};
 
   // Convert roles query from array to object
-  if (query.roles) {
+  if (req.query.roles) {
     // Make sure roles is an array first
-    query.roles = Array.isArray(query.roles) ? query.roles : [query.roles];
-    query.roles = { $in : query.roles };
+    req.query.roles = Array.isArray(req.query.roles) ? req.query.roles : [req.query.roles];
+    query.roles = { $in : req.query.roles };
   }
 
   User.find(query)
@@ -222,69 +220,5 @@ exports.deleteUser = function(req, res, next) {
         payload: deletedUser,
       });
     }
-  });
-};
-
-exports.inviteUser = function(req, res, next) {
-  if (!req.body.roles || !req.body.email) {
-    return next({
-      status: 400,
-      message: 'Invite user requires email and roles.',
-    });
-  }
-
-  // Make sure roles ends up as an array
-  const roles = Array.isArray(req.body.roles) ? req.body.roles : [req.body.roles];
-
-  const newCode = new Code({ 
-    code: uuidv4(), // Generate and return a RFC4122 v4 UUID
-    type: 'invite',
-    roles,
-    email: req.body.email,
-  });
-
-  newCode.save(function(err, inviteCode) {
-    if (err) {
-      return next(err);
-    }
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const url = `${baseUrl}/invite?code=`;
-
-    // TODO: Use Amazon SES to build a template and send email
-
-    return res.json({
-      success: true,
-      message: 'Invite code created. TODO: Send email.',
-    });
-  });
-};
-
-exports.resetPassword = function(req, res, next) {
-  if (!req.body.email) {
-    return next({
-      status: 400,
-      message: 'Reset password requires an email.',
-    });
-  }
-
-  const newCode = new Code({ 
-    code: uuidv4(), // Generate and return a RFC4122 v4 UUID
-    type: 'reset',
-    email: req.body.email,
-  });
-
-  newCode.save(function(err, inviteCode) {
-    if (err) {
-      return next(err);
-    }
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const url = `${baseUrl}/invite?code=`;
-
-    // TODO: Use Amazon SES to build a template and send email
-
-    return res.json({
-      success: true,
-      message: 'Reset password code created. TODO: Send email.',
-    });
   });
 };

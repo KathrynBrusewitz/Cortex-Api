@@ -1,16 +1,11 @@
 var Item = require("../models/Item");
 
-exports.getItems = function(req, res) {
-  const query = req.query || {};
+exports.getItems = function(req, res, next) {
+  let query = req.query.q || {};
 
-  Item.find({ ...query })
-  .exec(function(err, data) {
+  Item.find(query, function(err, data) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -20,14 +15,10 @@ exports.getItems = function(req, res) {
   });
 };
 
-exports.getItem = function(req, res) {
-  Item.findById({ _id: req.params.id }, function(err, data) {
+exports.getItem = function(req, res, next) {
+  Item.findById(req.params.id, function(err, data) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
+      return next(err);
     } else {
       res.json({
         success: true,
@@ -37,32 +28,27 @@ exports.getItem = function(req, res) {
   });
 };
 
-exports.postItem = function(req, res) {
+exports.postItem = function(req, res, next) {
   const newItem = new Item({ 
     ...req.body,
   });
 
-  newItem.save(function(err) {
+  newItem.save(function(err, savedItem) {
     if (err) {
-      console.log(err);
-      res.status(500).send({
-        success: false,
-        message: "Server error."
-      });
+      return next(err);
     } else {
-      res.json({ success: true });
+      res.json({
+        success: true,
+        payload: savedItem,
+      });
     }
   });
 };
 
-exports.putItem = function(req, res) {
-  Item.findById({ _id: req.params.id }, function(err, foundItem) {
+exports.putItem = function(req, res, next) {
+  Item.findById(req.params.id, function(err, foundItem) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
+      return next(err);
     } else {
       const updatedItem = {
         ...req.body,
@@ -70,11 +56,7 @@ exports.putItem = function(req, res) {
       foundItem.set(updatedItem);
       foundItem.save(function (err, updatedItem) {
         if (err) {
-          console.log(err);
-          res.json({
-            success: false,
-            message: "Server error."
-          });
+          return next(err);
         } else {
           res.json({
             success: true,
@@ -86,17 +68,14 @@ exports.putItem = function(req, res) {
   });
 };
 
-exports.deleteItem = function(req, res) {
-  Item.findByIdAndRemove({ _id: req.params.id }, function(err) {
+exports.deleteItem = function(req, res, next) {
+  Item.findByIdAndRemove(req.params.id, function(err) {
     if (err) {
-      console.log(err);
-      res.json({
-        success: false,
-        message: "Server error."
-      });
+      return next(err, deletedItem);
     } else {
       res.json({
         success: true,
+        payload: deletedItem,
       });
     }
   });

@@ -38,9 +38,9 @@ var ContentsController = require("./controllers/ContentsController.js");
 var EventsController = require("./controllers/EventsController.js");
 var UsersController = require("./controllers/UsersController.js");
 var TermsController = require("./controllers/TermsController.js");
+var CodesController = require("./controllers/CodesController.js");
 
 api.post("/login", AuthController.login);
-api.post("/users/reset", UsersController.resetPassword);
 api.get("/decode", verifyToken, AuthController.decode);
 api.get("/me", verifyToken, UsersController.getMe);
 
@@ -49,7 +49,11 @@ api.get("/users", verifyToken, UsersController.getUsers);
 api.get("/users/:id", verifyToken, UsersController.getUser);
 api.put("/users/:id", verifyToken, UsersController.putUser);
 api.delete("/users/:id", verifyToken, UsersController.deleteUser);
-api.post("/users/invite", verifyToken, UsersController.inviteUser);
+
+api.get("/codes/invites", verifyToken, CodesController.getInvites);
+api.post("/codes/invites", verifyToken, CodesController.postInvite);
+api.post("/codes/resets", CodesController.postReset);
+api.delete("/codes/invites/:id", verifyToken, CodesController.deleteInvite);
 
 api.get("/contents", verifyToken, ContentsController.getContents);
 api.get("/contents/:id", verifyToken, ContentsController.getContent);

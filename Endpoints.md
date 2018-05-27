@@ -151,7 +151,7 @@ Request Body: None
 
 Add a new user to the userbase. Name, roles, and email are required. All other information are optional. 
 
-An admin can add a new user with their name, role(s), and email. This may be a writer or artist who cannot or will not provide a password. If the writer or artist would like to have an account to login with, 1) the new user can request a password reset for their email, and then 2) follow the instructions emailed to them to set a password.
+An admin can add a new user with their name, role(s), and email. This may be a writer or artist who cannot provide a password at the time or doesn't want to. If the writer or artist would like to have an account to login with, 1) the new user can request a password reset for their email, and then 2) follow the instructions emailed to them to set a password.
 
 If you're coming from the app, you will automatically be assigned the `reader` role if it's not specified.
 
