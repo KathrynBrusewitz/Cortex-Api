@@ -1,9 +1,7 @@
 var Term = require("../models/Term");
 
 exports.getTerms = function(req, res, next) {
-  console.log(req.query);
   const query = req.query.q || {};
-  console.log(query);
 
   Term.find(query, function(err, data) {
     if (err) {
