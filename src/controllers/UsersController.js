@@ -10,8 +10,7 @@ exports.getMe = function(req, res, next) {
     });
   }
   User.findById(req.decoded._id)
-  .populate('bookmarks')
-  .populate('notes.term')
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -47,8 +46,7 @@ exports.getUsers = function(req, res, next) {
   }
 
   User.find(query)
-  .populate('bookmarks')
-  .populate('notes.term')
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -63,8 +61,7 @@ exports.getUsers = function(req, res, next) {
 
 exports.getUser = function(req, res, next) {
   User.findById(req.params.id)
-  .populate('bookmarks')
-  .populate('notes.term')
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
   .exec(function(err, foundUser) {
     if (err) {
       return next(err);
@@ -201,8 +198,7 @@ exports.putUser = function(req, res, next) {
           }
           // TODO: Repeated work
           User.findById(savedUser._id)
-          .populate('bookmarks')
-          .populate('notes.term')
+          .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
           .exec(function(err, foundUser) {
             if (err) {
               return next(err);
