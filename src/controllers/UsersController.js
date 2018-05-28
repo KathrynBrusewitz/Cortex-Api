@@ -198,12 +198,21 @@ exports.putUser = function(req, res, next) {
         foundUser.save(function (err, savedUser) {
           if (err) {
             return next(err);
-          } else {
-            return res.json({
-              success: true,
-              payload: savedUser,
-            });
           }
+          // TODO: Repeated work
+          User.findById(savedUser._id)
+          .populate('bookmarks')
+          .populate('notes.term')
+          .exec(function(err, foundUser) {
+            if (err) {
+              return next(err);
+            } else {
+              return res.json({
+                success: true,
+                payload: foundUser,
+              });
+            }
+          });
         });
       }
     }
