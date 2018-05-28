@@ -1,4 +1,5 @@
 var Content = require("../models/Content");
+var SlateHelper = require("../helpers/SlateHelper");
 
 exports.getContents = function(req, res, next) {
   let query = req.query.q || {};
@@ -54,6 +55,7 @@ exports.getContent = function(req, res, next) {
     if (err) {
       return next(err);
     } else {
+      const result = SlateHelper.jsonToHtml(data.bodySlate);
       res.json({
         success: true,
         payload: data,
