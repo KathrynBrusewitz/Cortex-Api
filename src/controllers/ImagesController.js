@@ -1,9 +1,9 @@
-var Item = require("../models/Item");
+var Image = require("../models/Image");
 
-exports.getItems = function(req, res, next) {
+exports.getImages = function(req, res, next) {
   let query = req.query.q || {};
 
-  Item.find(query, function(err, data) {
+  Image.find(query, function(err, data) {
     if (err) {
       return next(err);
     } else {
@@ -15,8 +15,8 @@ exports.getItems = function(req, res, next) {
   });
 };
 
-exports.getItem = function(req, res, next) {
-  Item.findById(req.params.id, function(err, data) {
+exports.getImage = function(req, res, next) {
+  Image.findById(req.params.id, function(err, data) {
     if (err) {
       return next(err);
     } else {
@@ -28,39 +28,39 @@ exports.getItem = function(req, res, next) {
   });
 };
 
-exports.postItem = function(req, res, next) {
-  const newItem = new Item({ 
+exports.postImage = function(req, res, next) {
+  const newImage = new Image({ 
     ...req.body,
   });
 
-  newItem.save(function(err, savedItem) {
+  newImage.save(function(err, savedImage) {
     if (err) {
       return next(err);
     } else {
       res.json({
         success: true,
-        payload: savedItem,
+        payload: savedImage,
       });
     }
   });
 };
 
-exports.putItem = function(req, res, next) {
-  Item.findById(req.params.id, function(err, foundItem) {
+exports.putImage = function(req, res, next) {
+  Image.findById(req.params.id, function(err, foundImage) {
     if (err) {
       return next(err);
     } else {
-      const updatedItem = {
+      const updatedImage = {
         ...req.body,
       };
-      foundItem.set(updatedItem);
-      foundItem.save(function (err, updatedItem) {
+      foundImage.set(updatedImage);
+      foundImage.save(function (err, updatedImage) {
         if (err) {
           return next(err);
         } else {
           res.json({
             success: true,
-            payload: updatedItem,
+            payload: updatedImage,
           });
         }
       });
@@ -68,14 +68,14 @@ exports.putItem = function(req, res, next) {
   });
 };
 
-exports.deleteItem = function(req, res, next) {
-  Item.findByIdAndRemove(req.params.id, function(err, deletedItem) {
+exports.deleteImage = function(req, res, next) {
+  Image.findByIdAndRemove(req.params.id, function(err, deletedImage) {
     if (err) {
       return next(err);
     } else {
       res.json({
         success: true,
-        payload: deletedItem,
+        payload: deletedImage,
       });
     }
   });

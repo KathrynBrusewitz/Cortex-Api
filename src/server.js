@@ -39,6 +39,7 @@ var EventsController = require("./controllers/EventsController.js");
 var UsersController = require("./controllers/UsersController.js");
 var TermsController = require("./controllers/TermsController.js");
 var CodesController = require("./controllers/CodesController.js");
+var ImagesController = require("./controllers/ImagesController.js");
 
 api.post("/login", AuthController.login);
 api.get("/decode", verifyToken, AuthController.decode);
@@ -72,6 +73,12 @@ api.get("/events/:id", verifyToken, EventsController.getEvent);
 api.post("/events", verifyToken, EventsController.postEvent);
 api.put("/events/:id", verifyToken, EventsController.putEvent);
 api.delete("/events/:id", verifyToken, EventsController.deleteEvent);
+
+api.post("/images", verifyToken, ImagesController.postImage);
+api.get("/images", verifyToken, ImagesController.getImages);
+api.get("/images/:id", verifyToken, ImagesController.getImage);
+api.put("/images/:id", verifyToken, ImagesController.putImage);
+api.delete("/images/:id", verifyToken, ImagesController.deleteImage);
 
 api.get("/search", verifyToken, SearchController.search);
 
