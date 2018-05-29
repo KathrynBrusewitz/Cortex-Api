@@ -166,25 +166,40 @@ exports.putUser = function(req, res, next) {
         });
       }
       // If password is being updated, hash the new password
-      if (req.body.password) {
-        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+      if (req.body.newPassword) {
+        // First check if password matches current password
+        // TODO: Repeated work
+        bcrypt.compare(req.body.currentPassword, foundUser.password, function(err, isMatch) {
           if (err) {
             return next(err);
           }
-          const updatedUser = {
-            ...req.body,
-            password: hash,
-          };
-          foundUser.set(updatedUser);
-          foundUser.save(function (err, savedUser) {
+          if (!isMatch) {
+            return next({
+              status: 404,
+              message: "Updating password failed. Incorrect current password."
+            });
+          }
+          // Current password matches, so go ahead with hashing the new password
+          bcrypt.hash(req.body.newPassword, saltRounds, function(err, hash) {
             if (err) {
               return next(err);
-            } else {
-              return res.json({
-                success: true,
-                payload: savedUser,
-              });
             }
+            const updatedUser = {
+              ...req.body,
+              password: hash,
+            };
+            foundUser.set(updatedUser);
+            foundUser.save(function (err, savedUser) {
+              if (err) {
+                return next(err);
+              } else {
+                savedUser.password = undefined;
+                return res.json({
+                  success: true,
+                  payload: savedUser,
+                });
+              }
+            });
           });
         });
       } else {
@@ -212,7 +227,7 @@ exports.putUser = function(req, res, next) {
         });
       }
     }
-  });
+  }).select("+password");;
 };
 
 exports.deleteUser = function(req, res, next) {
