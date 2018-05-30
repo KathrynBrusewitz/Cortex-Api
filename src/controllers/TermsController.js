@@ -3,7 +3,9 @@ var Term = require("../models/Term");
 exports.getTerms = function(req, res, next) {
   const query = req.query.q || {};
 
-  Term.find(query, function(err, data) {
+  Term.find(query)
+  .deepPopulate('coverImage coverImage.artists')
+  .exec(function(err, data) {
     if (err) {
       return next(err);
     } else {
@@ -16,7 +18,9 @@ exports.getTerms = function(req, res, next) {
 };
 
 exports.getTerm = function(req, res, next) {
-  Term.findById(req.params.id, function(err, data) {
+  Term.findById(req.params.id)
+  .deepPopulate('coverImage coverImage.artists')
+  .exec(function(err, data) {
     if (err) {
       return next(err);
     } else {

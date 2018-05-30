@@ -4,6 +4,7 @@ exports.getEvents = function(req, res, next) {
   const query = req.query || {};
 
   Event.find({ ...query })
+  .deepPopulate('coverImage coverImage.artists')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -17,7 +18,9 @@ exports.getEvents = function(req, res, next) {
 };
 
 exports.getEvent = function(req, res, next) {
-  Event.findById({ _id: req.params.id }, function(err, data) {
+  Event.findById({ _id: req.params.id })
+  .deepPopulate('coverImage coverImage.artists')
+  .exec(function(err, data) {
     if (err) {
       return next(err);
     } else {
