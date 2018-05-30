@@ -16,6 +16,8 @@ var config = require("./config");
 var port = process.env.PORT || 8080;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
+app.set("AWS_ACCESS_KEY_ID", config.AWS_ACCESS_KEY_ID);
+app.set("AWS_SECRET_ACCESS_KEY", config.AWS_SECRET_ACCESS_KEY);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
@@ -74,9 +76,9 @@ api.post("/events", verifyToken, EventsController.postEvent);
 api.put("/events/:id", verifyToken, EventsController.putEvent);
 api.delete("/events/:id", verifyToken, EventsController.deleteEvent);
 
-api.post("/images", verifyToken, ImagesController.postImage);
 api.get("/images", verifyToken, ImagesController.getImages);
 api.get("/images/:id", verifyToken, ImagesController.getImage);
+api.post("/images", verifyToken, ImagesController.postImage);
 api.put("/images/:id", verifyToken, ImagesController.putImage);
 api.delete("/images/:id", verifyToken, ImagesController.deleteImage);
 
