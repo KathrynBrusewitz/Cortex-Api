@@ -11,6 +11,7 @@ module.exports = mongoose.model(
     state: { type: String, enum: ['published', 'unpublished'], required: true, default: 'unpublished' },
     type: { type: String, enum: ['article', 'podcast', 'video'], required: true },
     // Optional
+    coverImage: { type: ObjectId, ref: 'Image', default: null },
     creators: [{ type: ObjectId, ref: 'User', default: [] }],
     artists: [{ type: ObjectId, ref: 'User', default: [] }],
     updateTime: { type: Date, default: Date.now }, // updateTime == createTime
@@ -24,6 +25,9 @@ module.exports = mongoose.model(
     url: { type: String, default: null }, // youtube url, podcast url, etc.
   }).plugin(deepPopulate, {
     populate: {
+      'coverImage.artists': {
+        select: 'name roles'
+      },
       'creators': {
         select: 'name roles',
       },

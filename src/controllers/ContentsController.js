@@ -28,7 +28,7 @@ exports.getContents = function(req, res, next) {
   }
 
   Content.find(query, '-body -bodySlate')
-  .deepPopulate('creators artists')
+  .deepPopulate('creators artists coverImage coverImage.artists')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -43,7 +43,7 @@ exports.getContents = function(req, res, next) {
 
 exports.getContent = function(req, res, next) {
   Content.findById(req.params.id)
-  .deepPopulate('creators artists')
+  .deepPopulate('creators artists coverImage coverImage.artists')
   .exec(function(err, data) {
     if (!data) {
       return next({
