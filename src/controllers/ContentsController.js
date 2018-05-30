@@ -27,7 +27,7 @@ exports.getContents = function(req, res, next) {
     query.state = 'published';
   }
 
-  Content.find(query)
+  Content.find(query, '-body -bodySlate')
   .deepPopulate('creators artists')
   .exec(function(err, data) {
     if (err) {

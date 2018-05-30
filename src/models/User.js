@@ -17,6 +17,9 @@ module.exports = mongoose.model(
     bio: { type: String, default: '' },
   }).plugin(deepPopulate, {
     populate: {
+      'bookmarks': {
+        select: '-body -bodySlate',
+      },
       'bookmarks.creators': {
         select: 'name',
       },
