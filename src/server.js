@@ -13,7 +13,7 @@ var jwt = require("jsonwebtoken");
 // Configuration
 // =======================
 var config = require("./config");
-var port = process.env.PORT || 443;
+var port = 8443;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
 app.set("AWS_ACCESS_KEY_ID", config.AWS_ACCESS_KEY_ID);
@@ -45,13 +45,13 @@ var ImagesController = require("./controllers/ImagesController.js");
 
 /* Redirect http to https */
 // https://stackoverflow.com/questions/7185074/heroku-nodejs-http-to-https-ssl-forced-redirect/23894573#23894573
-api.get('*', function(req, res, next) {
-  if (req.headers['x-forwarded-proto'] != 'https') {
-    res.redirect('https://' + req.hostname + req.url);
-  } else {
-    next(); /* Continue to other routes if we're not redirecting */
-  }
-});
+// api.get('*', function(req, res, next) {
+//   if (req.headers['x-forwarded-proto'] != 'https') {
+//     res.redirect('https://' + req.hostname + req.url);
+//   } else {
+//     next(); /* Continue to other routes if we're not redirecting */
+//   }
+// });
 
 api.post("/login", AuthController.login);
 api.get("/decode", verifyToken, AuthController.decode);
