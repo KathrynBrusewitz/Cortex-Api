@@ -10,7 +10,7 @@ exports.getMe = function(req, res, next) {
     });
   }
   User.findById(req.decoded._id)
-  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists bookmarks.coverImage notes.term')
   .exec(function(err, data) {
     if (err) {
       return next(err);
@@ -61,7 +61,7 @@ exports.getUsers = function(req, res, next) {
 
 exports.getUser = function(req, res, next) {
   User.findById(req.params.id)
-  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists bookmarks.coverImage notes.term')
   .exec(function(err, foundUser) {
     if (err) {
       return next(err);
