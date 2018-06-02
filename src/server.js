@@ -13,7 +13,7 @@ var jwt = require("jsonwebtoken");
 // Configuration
 // =======================
 var config = require("./config");
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 443;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
 app.set("AWS_ACCESS_KEY_ID", config.AWS_ACCESS_KEY_ID);
