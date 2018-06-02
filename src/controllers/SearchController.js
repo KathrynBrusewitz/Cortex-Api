@@ -17,7 +17,7 @@ exports.search = function(req, res, next) {
     ],
     ...options,
   })
-  .deepPopulate('creators artists')
+  .deepPopulate('creators artists coverImage')
   .exec(function(err, data) {
     if (err) {
       return next(err);
