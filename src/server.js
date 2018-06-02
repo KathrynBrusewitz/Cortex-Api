@@ -43,6 +43,16 @@ var TermsController = require("./controllers/TermsController.js");
 var CodesController = require("./controllers/CodesController.js");
 var ImagesController = require("./controllers/ImagesController.js");
 
+/* Redirect http to https */
+// https://stackoverflow.com/questions/7185074/heroku-nodejs-http-to-https-ssl-forced-redirect/23894573#23894573
+api.get('*', function(req, res, next) {
+  if (req.headers['x-forwarded-proto'] != 'https') {
+    res.redirect('https://' + req.hostname + req.url);
+  } else {
+    next(); /* Continue to other routes if we're not redirecting */
+  }
+});
+
 api.post("/login", AuthController.login);
 api.get("/decode", verifyToken, AuthController.decode);
 api.get("/me", verifyToken, UsersController.getMe);
