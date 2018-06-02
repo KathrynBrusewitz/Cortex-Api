@@ -15,6 +15,11 @@ exports.getContents = function(req, res, next) {
     query._id = { $in: req.query.contentIds };
   }
 
+  // Can filter content by highlight boolean
+  if (req.query.highlight) {
+    query.highlight = req.query.highlight;
+  }
+
   // Can filter contents by type
   if (req.query.type) {
     // Make sure type is an array first
@@ -27,7 +32,7 @@ exports.getContents = function(req, res, next) {
     query.state = 'published';
   }
 
-  Content.find(query, '-body -bodySlate')
+  Content.find(query, req.query.highlight ? '' : '-body -bodySlate')
   .deepPopulate('creators artists coverImage coverImage.artists')
   .exec(function(err, data) {
     if (err) {

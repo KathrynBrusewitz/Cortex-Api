@@ -11,6 +11,7 @@ module.exports = mongoose.model(
     state: { type: String, enum: ['published', 'unpublished'], required: true, default: 'unpublished' },
     type: { type: String, enum: ['article', 'podcast', 'video'], required: true },
     // Optional
+    highlight: { type: Boolean, default: false },
     coverImage: { type: ObjectId, ref: 'Image', default: null },
     creators: [{ type: ObjectId, ref: 'User', default: [] }],
     artists: [{ type: ObjectId, ref: 'User', default: [] }],
@@ -19,6 +20,7 @@ module.exports = mongoose.model(
     // Content Type Specific Details
     body: { type: String, default: null },
     bodySlate: { type: JSON, default: null }, // JSON format for Slate Framework
+    bodyHtml: { type: String, default: null }, // HTML format for Slate Framework
     description: { type: String, default: null },
     duration: { type: Number, default: null }, // milliseconds
     references: [{ number: Number, text: String }],
