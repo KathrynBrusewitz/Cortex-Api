@@ -43,6 +43,14 @@ var TermsController = require("./controllers/TermsController.js");
 var CodesController = require("./controllers/CodesController.js");
 var ImagesController = require("./controllers/ImagesController.js");
 
+app.get("/", function(req, res) {
+  res.send("Welcome to Cortex API. Go to /1.0/ for version 1.0.");
+});
+
+api.get("/", function(req, res) {
+  res.send("Welcome to Cortex API v1.0.");
+});
+
 api.post("/login", AuthController.login);
 api.get("/decode", verifyToken, AuthController.decode);
 api.get("/me", verifyToken, UsersController.getMe);
