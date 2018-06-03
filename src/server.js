@@ -105,6 +105,6 @@ var lex = require('greenlock-express').create({
   email: 'cortex.dash@gmail.com',
   agreeTos: true,
   configDir: require('path').join(require('os').homedir(), 'acme', 'etc'),
-  approveDomains: ['ec2-34-218-235-4.us-west-2.compute.amazonaws.com', 'www.ec2-34-218-235-4.us-west-2.compute.amazonaws.com'],
+  approveDomains: ['cortexapi.com', 'www.cortexapi.com'],
   app: app,
 }).listen(80, 443);
