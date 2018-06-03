@@ -8,15 +8,21 @@ var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var mongoose = require("mongoose");
 var jwt = require("jsonwebtoken");
-// https://stackoverflow.com/questions/45515251/how-to-redirect-http-to-https-for-a-reactjs-spa-behind-aws-elb
-const path = require('path');
-const util = require('util');
+
+// https://stackoverflow.com/questions/41527939/create-run-secure-https-nodejs-express-app-with-self-signed-certificates-s
+// https://stackoverflow.com/questions/36774492/running-a-simple-https-node-js-server-on-amazon-ec2
+var https = require('https');
+var fs = require('fs');
+var options = {
+  key: fs.readFileSync('./privatekey.pem'),
+  cert: fs.readFileSync('./server.crt')
+};
 
 // =======================
 // Configuration
 // =======================
 var config = require("./config");
-var port = 8080;
+var port = 443;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
 app.set("AWS_ACCESS_KEY_ID", config.AWS_ACCESS_KEY_ID);
@@ -45,35 +51,6 @@ var UsersController = require("./controllers/UsersController.js");
 var TermsController = require("./controllers/TermsController.js");
 var CodesController = require("./controllers/CodesController.js");
 var ImagesController = require("./controllers/ImagesController.js");
-
-/**
- * Identifies requests from clients that use http(unsecure) and
- * redirects them to the corresponding https(secure) end point.
- *
- * Identification of protocol is based on the value of non
- * standard http header 'X-Forwarded-Proto', which is set by
- * the proxy(in our case AWS ELB).
- * - when the header is undefined, it is a request sent by
- * the ELB health check.
- * - when the header is 'http' the request needs to be redirected
- * - when the header is 'https' the request is served.
- *
- * @param req the request object
- * @param res the response object
- * @param next the next middleware in chain
- */
-const redirectionFilter = function (req, res, next) {
-  const theDate = new Date();
-  const receivedUrl = `${req.protocol}:\/\/${req.hostname}:${port}${req.url}`;
-
-  if (req.get('X-Forwarded-Proto') === 'http') {
-    const redirectTo = `https:\/\/${req.hostname}${req.url}`;
-    console.log(`${theDate} Redirecting ${receivedUrl} --> ${redirectTo}`);
-    res.redirect(301, redirectTo);
-  } else {
-    next();
-  }
-};
 
 api.get("/*", redirectionFilter);
 
@@ -124,5 +101,6 @@ app.use("/1.0", api);
 // =======================
 // Start the server
 // =======================
-app.listen(port);
-console.log("Cortex is running on port " + port);
+https.createServer(options, app).listen(port, function() {
+  console.log("Cortex is running on port " + port);
+});
