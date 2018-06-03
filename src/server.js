@@ -9,15 +9,6 @@ var morgan = require("morgan");
 var mongoose = require("mongoose");
 var jwt = require("jsonwebtoken");
 
-// https://stackoverflow.com/questions/41527939/create-run-secure-https-nodejs-express-app-with-self-signed-certificates-s
-// https://stackoverflow.com/questions/36774492/running-a-simple-https-node-js-server-on-amazon-ec2
-var https = require('https');
-var fs = require('fs');
-var options = {
-  key: fs.readFileSync('./privatekey.pem'),
-  cert: fs.readFileSync('./server.crt')
-};
-
 // =======================
 // Configuration
 // =======================
@@ -107,6 +98,13 @@ app.use("/1.0", api);
 // =======================
 // Start the server
 // =======================
-https.createServer(options, app).listen(port, function() {
-  console.log("Cortex is running on port " + port);
-});
+// https://github.com/Daplie/greenlock-express/issues/91
+var lex = require('greenlock-express').create({
+  version: 'draft-11',
+  server: 'https://acme-v02.api.letsencrypt.org/directory',
+  email: 'cortex.dash@gmail.com',
+  agreeTos: true,
+  configDir: require('path').join(require('os').homedir(), 'acme', 'etc'),
+  approveDomains: ['ec2-34-218-235-4.us-west-2.compute.amazonaws.com', 'www.ec2-34-218-235-4.us-west-2.compute.amazonaws.com'],
+  app: app,
+}).listen(80, 443);
