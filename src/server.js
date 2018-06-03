@@ -8,6 +8,9 @@ var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var mongoose = require("mongoose");
 var jwt = require("jsonwebtoken");
+// https://stackoverflow.com/questions/45515251/how-to-redirect-http-to-https-for-a-reactjs-spa-behind-aws-elb
+const path = require('path');
+const util = require('util');
 
 // =======================
 // Configuration
@@ -43,13 +46,36 @@ var TermsController = require("./controllers/TermsController.js");
 var CodesController = require("./controllers/CodesController.js");
 var ImagesController = require("./controllers/ImagesController.js");
 
-app.get("/", function(req, res) {
-  res.send("Welcome to Cortex API. Go to /1.0/ for version 1.0.");
-});
+/**
+ * Identifies requests from clients that use http(unsecure) and
+ * redirects them to the corresponding https(secure) end point.
+ *
+ * Identification of protocol is based on the value of non
+ * standard http header 'X-Forwarded-Proto', which is set by
+ * the proxy(in our case AWS ELB).
+ * - when the header is undefined, it is a request sent by
+ * the ELB health check.
+ * - when the header is 'http' the request needs to be redirected
+ * - when the header is 'https' the request is served.
+ *
+ * @param req the request object
+ * @param res the response object
+ * @param next the next middleware in chain
+ */
+const redirectionFilter = function (req, res, next) {
+  const theDate = new Date();
+  const receivedUrl = `${req.protocol}:\/\/${req.hostname}:${port}${req.url}`;
 
-api.get("/", function(req, res) {
-  res.send("Welcome to Cortex API v1.0.");
-});
+  if (req.get('X-Forwarded-Proto') === 'http') {
+    const redirectTo = `https:\/\/${req.hostname}${req.url}`;
+    console.log(`${theDate} Redirecting ${receivedUrl} --> ${redirectTo}`);
+    res.redirect(301, redirectTo);
+  } else {
+    next();
+  }
+};
+
+api.get("/*", redirectionFilter);
 
 api.post("/login", AuthController.login);
 api.get("/decode", verifyToken, AuthController.decode);
