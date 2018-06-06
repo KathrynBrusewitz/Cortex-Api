@@ -1,5 +1,6 @@
 var Code = require("../models/Code");
 var uuidv4 = require('uuid/v4');
+var AWS = require('aws-sdk');
 
 exports.getInvites = function(req, res, next) {
   let query = req.query.q || {};
@@ -55,11 +56,49 @@ exports.postInvite = function(req, res, next) {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const url = `${baseUrl}/invite?code=`;
 
-    // TODO: Use Amazon SES to build a template and send email
+    // Configuration to be used
+    AWS.config.update({
+      accessKeyId: req.app.get("AWS_ACCESS_KEY_ID"),
+      secretAccessKey: req.app.get("AWS_SECRET_ACCESS_KEY"),
+      subregion: 'us-west-2',
+    });
 
-    return res.json({
-      success: true,
-      message: 'Invite code created. TODO: Send email.',
+    // Load AWS SES
+    let SES = new aws.SES({apiVersion: '2010-12-01'});
+
+    // Build template
+    let params = {
+      Destination: {
+        ToAddresses: [req.body.email]
+      }, 
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8", 
+            Data: "This message body contains HTML formatting. It can, for example, contain links like this one: <a class=\"ulink\" href=\"http://docs.aws.amazon.com/ses/latest/DeveloperGuide\" target=\"_blank\">Amazon SES Developer Guide</a>."
+          }, 
+          Text: {
+            Charset: "UTF-8", 
+            Data: "This is the message body in text format."
+          },
+        }, 
+        Subject: {
+          Charset: "UTF-8", 
+          Data: "Test email"
+        }
+      },
+      Source: "cortex.dash@gmail.com", 
+    };
+
+    SES.sendEmail(params, function(err, data) {
+      if (err) {
+        return next(err);
+      } else {
+        return res.json({
+          success: true,
+          message: 'Created invite code created and sent email.',
+        });
+      }
     });
   });
 };
