@@ -60,7 +60,7 @@ exports.postInvite = function(req, res, next) {
     AWS.config.update({
       accessKeyId: req.app.get("AWS_ACCESS_KEY_ID"),
       secretAccessKey: req.app.get("AWS_SECRET_ACCESS_KEY"),
-      subregion: 'us-west-2',
+      region: 'us-west-2',
     });
 
     // Load AWS SES
