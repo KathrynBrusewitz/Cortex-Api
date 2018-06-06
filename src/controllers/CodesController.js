@@ -64,7 +64,7 @@ exports.postInvite = function(req, res, next) {
     });
 
     // Load AWS SES
-    let SES = new aws.SES({apiVersion: '2010-12-01'});
+    let SES = new AWS.SES({apiVersion: '2010-12-01'});
 
     // Build template
     let params = {
