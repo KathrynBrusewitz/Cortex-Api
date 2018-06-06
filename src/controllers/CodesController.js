@@ -87,7 +87,7 @@ exports.postInvite = function(req, res, next) {
           Data: "Test email"
         }
       },
-      Source: "cortex.dash@gmail.com", 
+      Source: "noreply@cortexdash.com",
     };
 
     SES.sendEmail(params, function(err, data) {
