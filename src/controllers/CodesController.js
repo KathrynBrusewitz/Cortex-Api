@@ -53,6 +53,8 @@ exports.postInvite = function(req, res, next) {
     if (err) {
       return next(err);
     }
+
+    // TODO: Return invite code url in template
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const url = `${baseUrl}/invite?code=`;
 
@@ -75,16 +77,12 @@ exports.postInvite = function(req, res, next) {
         Body: {
           Html: {
             Charset: "UTF-8", 
-            Data: "This message body contains HTML formatting. It can, for example, contain links like this one: <a class=\"ulink\" href=\"http://docs.aws.amazon.com/ses/latest/DeveloperGuide\" target=\"_blank\">Amazon SES Developer Guide</a>."
-          }, 
-          Text: {
-            Charset: "UTF-8", 
-            Data: "This is the message body in text format."
+            Data: `You've been invited to join Grey Matters Journal. <a class=\"ulink\" href=\"${url + inviteCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.`
           },
         }, 
         Subject: {
           Charset: "UTF-8", 
-          Data: "Test email"
+          Data: "You've been invited to Grey Matters Journal"
         }
       },
       Source: "noreply@cortexdash.com",
