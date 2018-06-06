@@ -54,10 +54,6 @@ exports.postInvite = function(req, res, next) {
       return next(err);
     }
 
-    // TODO: Return invite code url in template
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const url = `${baseUrl}/invite?code=`;
-
     // Configuration to be used
     AWS.config.update({
       accessKeyId: req.app.get("AWS_ACCESS_KEY_ID"),
@@ -77,7 +73,7 @@ exports.postInvite = function(req, res, next) {
         Body: {
           Html: {
             Charset: "UTF-8", 
-            Data: `You've been invited to join Grey Matters Journal. <a class=\"ulink\" href=\"${url + inviteCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.`
+            Data: "You've been invited to join Grey Matters Journal. <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=\" target=\"_blank\">Click here</a> to finish making your account with a password."
           },
         }, 
         Subject: {
