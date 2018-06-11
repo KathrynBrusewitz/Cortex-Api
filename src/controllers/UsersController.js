@@ -155,7 +155,9 @@ exports.postUser = function(req, res, next) {
 };
 
 exports.putUser = function(req, res, next) {
-  User.findById(req.params.id, function(err, foundUser) {
+  User.findById(req.params.id)
+  .deepPopulate('bookmarks bookmarks.creators bookmarks.artists bookmarks.coverImage notes.term')
+  .exec(function(err, foundUser) {
     if (err) {
       return next(err);
     } else {
@@ -211,23 +213,15 @@ exports.putUser = function(req, res, next) {
           if (err) {
             return next(err);
           }
-          // TODO: Repeated work
-          User.findById(savedUser._id)
-          .deepPopulate('bookmarks bookmarks.creators bookmarks.artists notes.term')
-          .exec(function(err, foundUser) {
-            if (err) {
-              return next(err);
-            } else {
-              return res.json({
-                success: true,
-                payload: foundUser,
-              });
-            }
+          savedUser.password = undefined;
+          return res.json({
+            success: true,
+            payload: savedUser,
           });
         });
       }
     }
-  }).select("+password");;
+  }).select("+password");
 };
 
 exports.deleteUser = function(req, res, next) {
