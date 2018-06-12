@@ -73,7 +73,7 @@ exports.postInvite = function(req, res, next) {
         Body: {
           Html: {
             Charset: "UTF-8", 
-            Data: `<p>You've been invited to join Grey Matters Journal! <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=${savedCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.</p><p>If the link does not work, copy and paste it in a new browser window.</p><p>This is a send-only email. Please do not reply to it.</p><img width=\"100\" src=\"https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png\" alt=\"Grey Matters Journal Logo\" /><p>- The Grey Matters Team</p>`
+            Data: `<div width="100%" style="margin:0;padding:20px;background-color:#f4f4f4"><div style="max-width:680px;padding:15px;margin:auto;background-color:#fff;font-family:Poppins,'-apple-system',BlinkMacSystemFont,Helvetica,Arial,sans-serif;color:#2e343b;font-size:13.5px;font-weight:300;letter-spacing:.07em;line-height:2em;"><div style="text-align:center"><img width="250" src="https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png" alt="Grey Matters Journal Logo" /></div><p><strong>Hello!</strong> You've been invited to join Grey Matters Journal!</p><p><a class="ulink" href="https://cortexdash.com/invite?code=${savedCode.code}" target="_blank">Click here to finish creating your account.</a></p><p><em>If the link does not work, copy and paste it in a new browser window.<br/>This is an automated, send-only email. Please do not reply.</em></p><p><strong>- The Grey Matters Team</p></strong></div></div>`
           },
         }, 
         Subject: {
