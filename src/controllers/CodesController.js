@@ -73,7 +73,7 @@ exports.postInvite = function(req, res, next) {
         Body: {
           Html: {
             Charset: "UTF-8", 
-            Data: `<p>You've been invited to join Grey Matters Journal! <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=${savedCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.</p><p>If the link does not work, copy and paste it in a new browser window.</p><p>This is a send-only email. Please do not reply to it.</p><img src=\"https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png\" alt=\"Grey Matters Journal Logo\" /><p>- The Grey Matters Team</p>`
+            Data: `<p>You've been invited to join Grey Matters Journal! <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=${savedCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.</p><p>If the link does not work, copy and paste it in a new browser window.</p><p>This is a send-only email. Please do not reply to it.</p><img width=\"100\" src=\"https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png\" alt=\"Grey Matters Journal Logo\" /><p>- The Grey Matters Team</p>`
           },
         }, 
         Subject: {
