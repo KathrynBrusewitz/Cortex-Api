@@ -1,0 +1,6 @@
+# Tells forever what things to ignore when using the forever --watch option
+# Follows standard ignore syntax like .gitignore
+
+# Even if empty, we still need this file or else forever CLI will not work
+# However, as of 6/11/2018, this file is still undocumented, due to complications/nuances in source
+# See: https://github.com/foreverjs/forever/issues/590
