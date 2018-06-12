@@ -49,7 +49,7 @@ exports.postInvite = function(req, res, next) {
     email: req.body.email,
   });
 
-  newCode.save(function(err, inviteCode) {
+  newCode.save(function(err, savedCode) {
     if (err) {
       return next(err);
     }
@@ -73,24 +73,25 @@ exports.postInvite = function(req, res, next) {
         Body: {
           Html: {
             Charset: "UTF-8", 
-            Data: "You've been invited to join Grey Matters Journal. <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=\" target=\"_blank\">Click here</a> to finish making your account with a password."
+            Data: `<p>You've been invited to join Grey Matters Journal! <a class=\"ulink\" href=\"https://cortexdash.com/invite?code=${savedCode.code}\" target=\"_blank\">Click here</a> to finish making your account with a password.</p><p>If the link does not work, copy and paste it in a new browser window.</p><p>This is a send-only email. Please do not reply to it.</p><img src=\"https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png\" alt=\"Grey Matters Journal Logo\" /><p>- The Grey Matters Team</p>`
           },
         }, 
         Subject: {
           Charset: "UTF-8", 
-          Data: "You've been invited to Grey Matters Journal"
+          Data: "You've been invited to join Grey Matters Journal"
         }
       },
       Source: "noreply@cortexdash.com",
     };
 
-    SES.sendEmail(params, function(err, data) {
+    SES.sendEmail(params, function(err) {
       if (err) {
         return next(err);
       } else {
         return res.json({
           success: true,
-          message: 'Created invite code created and sent email.',
+          message: 'Created invite code and sent email.',
+          payload: savedCode,
         });
       }
     });
