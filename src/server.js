@@ -13,7 +13,6 @@ var jwt = require("jsonwebtoken");
 // Configuration
 // =======================
 var config = require("./config");
-var port = 443;
 mongoose.connect(config.database);
 app.set("tokenSecret", config.tokenSecret);
 app.set("AWS_ACCESS_KEY_ID", config.AWS_ACCESS_KEY_ID);
@@ -99,7 +98,7 @@ app.use("/1.0", api);
 // Start the server
 // =======================
 // https://github.com/Daplie/greenlock-express/issues/91
-var lex = require('greenlock-express').create({
+require('greenlock-express').create({
   version: 'draft-11',
   server: 'https://acme-v02.api.letsencrypt.org/directory',
   email: 'cortex.dash@gmail.com',
