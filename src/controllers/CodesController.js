@@ -112,18 +112,53 @@ exports.postReset = function(req, res, next) {
     email: req.body.email,
   });
 
-  newCode.save(function(err, inviteCode) {
+  newCode.save(function(err, savedCode) {
     if (err) {
       return next(err);
     }
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const url = `${baseUrl}/invite?code=`;
 
-    // TODO: Use Amazon SES to build a template and send email
+    // TODO: Should check if user exists first
 
-    return res.json({
-      success: true,
-      message: 'Reset password code created. TODO: Send email.',
+    // Configuration to be used
+    AWS.config.update({
+      accessKeyId: req.app.get("AWS_ACCESS_KEY_ID"),
+      secretAccessKey: req.app.get("AWS_SECRET_ACCESS_KEY"),
+      region: 'us-west-2',
+    });
+
+    // Load AWS SES
+    let SES = new AWS.SES({apiVersion: '2010-12-01'});
+
+    // Build template
+    let params = {
+      Destination: {
+        ToAddresses: [req.body.email]
+      }, 
+      Message: {
+        Body: {
+          Html: {
+            Charset: "UTF-8", 
+            Data: `<div width="100%" style="margin:0;padding:20px;background-color:#f4f4f4"><div style="max-width:680px;padding:15px;margin:auto;background-color:#fff;font-family:Poppins,'-apple-system',BlinkMacSystemFont,Helvetica,Arial,sans-serif;color:#2e343b;font-size:13.5px;font-weight:300;letter-spacing:.07em;line-height:2em;"><div style="text-align:center"><img width="250" src="https://s3-us-west-2.amazonaws.com/cortexdocs/grey-matters-logo.png" alt="Grey Matters Journal Logo" /></div><p><strong>Hello!</strong> You've requested to reset your Grey Matters Journal password. Use the following code to continue resetting your password:</p><h2>${savedCode.code}</h2><p><em>If you did not make this request, please disregard this email.<br/>This is an automated, send-only email. Please do not reply.</em></p><p><strong>- The Grey Matters Team</p></strong></div></div>`
+          },
+        }, 
+        Subject: {
+          Charset: "UTF-8", 
+          Data: "Password reset code for Grey Matters Journal"
+        }
+      },
+      Source: "noreply@cortexdash.com",
+    };
+
+    SES.sendEmail(params, function(err) {
+      if (err) {
+        return next(err);
+      } else {
+        return res.json({
+          success: true,
+          message: 'Created reset code and sent email.',
+          payload: savedCode,
+        });
+      }
     });
   });
 };
