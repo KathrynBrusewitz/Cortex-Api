@@ -1,4 +1,5 @@
 var Code = require("../models/Code");
+var User = require("../models/User");
 var uuidv4 = require('uuid/v4');
 var AWS = require('aws-sdk');
 
