@@ -96,13 +96,25 @@ app.use("/1.0", api);
 // =======================
 // Start the server
 // =======================
-// https://github.com/Daplie/greenlock-express/issues/91
-require('greenlock-express').create({
-  version: 'draft-11',
-  server: 'https://acme-v02.api.letsencrypt.org/directory',
-  email: 'cortex.dash@gmail.com',
-  agreeTos: true,
-  configDir: require('path').join(require('os').homedir(), 'acme', 'etc'),
-  approveDomains: ['cortexapi.com', 'www.cortexapi.com'],
-  app: app,
-}).listen(80, 443);
+switch(process.env.CORTEX_API_ENV){
+  case "production":
+    // https://github.com/Daplie/greenlock-express/issues/91
+    require('greenlock-express').create({
+      version: 'draft-11',
+      server: 'https://acme-v02.api.letsencrypt.org/directory',
+      email: 'cortex.dash@gmail.com',
+      agreeTos: true,
+      configDir: require('path').join(require('os').homedir(), 'acme', 'etc'),
+      approveDomains: ['cortexapi.com', 'www.cortexapi.com'],
+      app: app,
+    }).listen(80, 443);
+    console.log("Running Cortex in production mode.");
+    console.log("Cortex is listening on port 80 and 443.");
+    return;
+  case "development":
+  default:
+    app.listen(8080);
+    console.log("Running Cortex in development mode.");
+    console.log("Cortex is listening on port 8080.");
+    return;
+}
