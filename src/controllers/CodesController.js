@@ -7,6 +7,13 @@ exports.getInvites = function(req, res, next) {
   let query = req.query.q || {};
   query.type = 'invite';
 
+  if (!req.token && !query.code) {
+    return next({
+      status: 400,
+      message: "Getting invites requires valid token or code.",
+    });
+  }
+
   Code.find(query, function(err, data) {
     if (err) {
       return next(err);

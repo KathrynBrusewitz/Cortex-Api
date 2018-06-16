@@ -7,7 +7,6 @@ var cors = require("cors");
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var mongoose = require("mongoose");
-var jwt = require("jsonwebtoken");
 
 // =======================
 // Configuration
@@ -26,7 +25,7 @@ app.options("*", cors());
 // =======================
 // Middleware
 // =======================
-var verifyToken = require("./middleware/AuthMiddleware");
+var { verifyToken, verifyTokenForCodes } = require("./middleware/AuthMiddleware");
 var handleError = require("./middleware/ErrorMiddleware");
 
 // =======================
@@ -60,7 +59,7 @@ api.get("/users/:id", verifyToken, UsersController.getUser);
 api.put("/users/:id", verifyToken, UsersController.putUser);
 api.delete("/users/:id", verifyToken, UsersController.deleteUser);
 
-api.get("/codes/invites", verifyToken, CodesController.getInvites);
+api.get("/codes/invites", verifyTokenForCodes, CodesController.getInvites);
 api.post("/codes/invites", verifyToken, CodesController.postInvite);
 api.post("/codes/resets", CodesController.postReset);
 api.delete("/codes/invites/:id", verifyToken, CodesController.deleteInvite);
